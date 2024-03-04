@@ -7,7 +7,7 @@
 
     </data>
 
-    <androidx.drawerlayout.widget.DrawerLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:id="@+id/drawer_layout"
         android:layout_height="match_parent"
@@ -20,19 +20,20 @@
             android:layout_height="0dp"
             app:defaultNavHost="true"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="1.0"
+            app:layout_constraintVertical_bias="0.0"
             app:navGraph="@navigation/nav_graph" />
-        <com.google.android.material.navigation.NavigationView
-            android:id="@+id/navegator_layout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:menu="@menu/nav_drawer_menu"
-            app:itemIconSize="30dp"
-            app:headerLayout="@layout/nav_header"
-            android:layout_gravity="start"/>
 
-    </androidx.drawerlayout.widget.DrawerLayout></layout>
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:menu="@menu/nav_drawer_menu"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout></layout>

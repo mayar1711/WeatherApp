@@ -1,27 +1,42 @@
 package com.example.temptrack.ui.home.viewmodel
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.temptrack.data.model.WeatherData
+import com.example.temptrack.data.network.ApiWeatherData
 import com.example.temptrack.data.repositry.WeatherRepository
-import com.example.temptrack.data.model.WeatherForecastResponse
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 class HomeViewModel(private val repository: WeatherRepository) : ViewModel() {
-    private val _weatherForecast = MutableLiveData<WeatherForecastResponse>()
-    val weatherForecast: LiveData<WeatherForecastResponse> = _weatherForecast
+    private val _weatherForecast = MutableStateFlow<ApiWeatherData>(ApiWeatherData.Loading)
+    val weatherForecast: StateFlow<ApiWeatherData> = _weatherForecast
 
     fun fetchWeatherForecast(latitude: Double, longitude: Double) {
         viewModelScope.launch {
-            try {
-                val forecast = repository.getWeatherForecast(latitude, longitude)
-                _weatherForecast.postValue(forecast)
-                Log.i("TAG", "fetchWeatherForecast: $forecast")
-            } catch (e: Exception) {
-                Log.i("TAG", "fetchWeatherForecast: ${e.message}")
-            }
+            repository.getWeatherForecast(latitude, longitude)
+                .catch { e ->
+                    _weatherForecast.value = ApiWeatherData.Error(e)
+                }
+                .collect { result ->
+                    _weatherForecast.value = ApiWeatherData.Success(result)
+                    val list = result.list
+                    val filteredLists = mutableListOf<List<WeatherData>>()
+
+                    val groupedWeatherData = list.groupBy { it.dtTxt?.substring(0, 10) }
+                    groupedWeatherData.forEach { (_, weatherList) ->
+
+                        filteredLists.add(weatherList)
+
+                    }
+                    Log.i("TAG", "fetchWeatherForecast: ${filteredLists[0]}")
+                }
         }
     }
+
 }
+
