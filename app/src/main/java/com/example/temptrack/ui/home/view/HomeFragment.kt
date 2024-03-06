@@ -33,7 +33,6 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         val repository = WeatherRepositoryImpl(RetrofitClient.weatherApiService)
         val factory = HomeViewModelFactory(repository)
         viewModel = ViewModelProvider(this, factory).get(HomeViewModel::class.java)
@@ -42,7 +41,6 @@ class HomeFragment : Fragment() {
         val year = calendar.get(Calendar.YEAR)
         val month = calendar.get(Calendar.MONTH) + 1 // Month is zero-based, so add 1
         val dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH)
-
         Log.i("CurrentDate", "Year: $year, Month: $month, Day: $dayOfMonth")
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.weatherForecast.collect { weatherData ->

@@ -1,13 +1,20 @@
+import org.jetbrains.kotlin.konan.properties.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id ("kotlin-kapt")
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
-
 android {
     namespace = "com.example.temptrack"
     compileSdk = 34
 
+    buildFeatures {
+        buildConfig = true
+    }
+    val properties = Properties()
+    properties.load(rootProject.file("local.properties").inputStream())
     defaultConfig {
         applicationId = "com.example.temptrack"
         minSdk = 33
@@ -16,9 +23,13 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "WEATHER_API_KEY", "\"${properties.getProperty("WEATHER_API_KEY")}\"")
+        buildConfigField("String", "MAP_API_KEY", "\"${properties.getProperty("MAP_API_KEY")}\"")
     }
     buildFeatures{
         dataBinding=true
+        viewBinding = true
     }
     buildTypes {
         release {
@@ -76,8 +87,12 @@ dependencies {
     implementation ("com.google.android.material:material:1.8.0")
     //ViewModel & livedata
     implementation ("androidx.lifecycle:lifecycle-extensions:2.2.0")
-    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1")
-    implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.5.1")
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
+    implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")
+
+
+    //location map
+    implementation ("com.google.android.libraries.places:places:3.3.0")
 
     //
     implementation ("com.google.android.gms:play-services-location:21.1.0")
@@ -88,4 +103,10 @@ dependencies {
     //Coroutine
 
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
+    //Data store preferences
+    implementation("androidx.datastore:datastore-preferences-core:1.0.0")
+    implementation ("androidx.datastore:datastore-preferences:1.0.0")
+
+
 }

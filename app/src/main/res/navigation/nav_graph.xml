@@ -25,4 +25,5 @@
         android:name="com.example.temptrack.ui.home.view.HomeFragment"
         android:label="@string/home"
         tools:layout="@layout/fragment_home" />
+
 </navigation>
