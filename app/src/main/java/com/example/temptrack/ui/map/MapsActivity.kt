@@ -148,12 +148,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, CoroutineScope by 
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted, enable location
                 enableMyLocation()
                 viewModel.requestLocationByGPS()
                 moveCameraToMyLocation()
             } else {
-                // Permission denied, handle accordingly (e.g., show a message or disable location features)
                 Log.e("MapsActivity", "Location permission denied")
             }
         }

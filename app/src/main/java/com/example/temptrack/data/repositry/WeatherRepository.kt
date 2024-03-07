@@ -5,7 +5,7 @@ import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.Flow
 
 interface WeatherRepository {
-   fun getWeatherForecast(latitude: Double, longitude: Double): Flow<WeatherForecastResponse>
+   fun getWeatherForecast(latitude: Double, longitude: Double,unit:String,language: String): Flow<WeatherForecastResponse>
    suspend fun getLocation(): LatLng
 
 }

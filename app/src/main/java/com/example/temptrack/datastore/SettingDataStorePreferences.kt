@@ -17,7 +17,7 @@ private const val MAP_LAT_PREFERENCES = "MAP_LAT_PREFERENCES"
 private const val MAP_LONG_PREFERENCES = "MAP_LONG_PREFERENCES"
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = SETTING_SHARED_PREFERENCES)
 
-class SettingSharedPreferences(private val context: Context) {
+class SettingDataStorePreferences(private val context: Context) {
 
     private val locationPrefKey = stringPreferencesKey(LOCATION_PREFERENCES)
     private val tempPrefKey = stringPreferencesKey(TEMP_PREFERENCES)
@@ -31,6 +31,7 @@ class SettingSharedPreferences(private val context: Context) {
             preferences[locationPrefKey] = locationPref
         }
     }
+
 
     fun getLocationPref(): Flow<String?> {
         return context.dataStore.data.map { preferences ->
@@ -97,11 +98,11 @@ class SettingSharedPreferences(private val context: Context) {
         const val NAVIGATE_TO_MAP = "NAVIGATE_TO_MAP"
 
         @SuppressLint("StaticFieldLeak")
-        private lateinit var instance: SettingSharedPreferences
+        private lateinit var instance: SettingDataStorePreferences
 
-        fun getInstance(context: Context): SettingSharedPreferences {
+        fun getInstance(context: Context): SettingDataStorePreferences {
             if (!::instance.isInitialized) {
-                instance = SettingSharedPreferences(context.applicationContext)
+                instance = SettingDataStorePreferences(context.applicationContext)
             }
             return instance
         }
