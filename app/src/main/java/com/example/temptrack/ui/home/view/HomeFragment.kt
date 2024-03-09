@@ -1,5 +1,6 @@
 package com.example.temptrack.ui.home.view
 
+
 import android.Manifest
 import android.app.AlertDialog
 import android.content.Context
@@ -49,7 +50,7 @@ class HomeFragment : Fragment() {
         val repository = WeatherRepositoryImpl(RetrofitClient.weatherApiService)
         val factory = HomeViewModelFactory(requireActivity().application,repository)
         viewModel = ViewModelProvider(this, factory).get(HomeViewModel::class.java)
-        viewModel.fetchWeatherForecast(44.34, 10.99,"metric","ar")
+        viewModel.fetchWeatherForecast(44.34, 10.99,"metric","en")
         val calendar = Calendar.getInstance()
         val year = calendar.get(Calendar.YEAR)
         val month = calendar.get(Calendar.MONTH) + 1
@@ -62,7 +63,11 @@ class HomeFragment : Fragment() {
                         val forecast = weatherData.forecast
                         Log.i("HomeFragment", "Weather forecast data: $forecast")
                         Log.i("HomeFragment", "Weather forecast data:\n${forecast.list[30]}")
-/*
+                        binding.tvCity.text=forecast.city.name
+                        binding.tvTemp.text=forecast.list[0].main.temp.toString()
+                        binding.tvDescription.text=forecast.list[0].weather[0].description
+                        binding.iconforNow
+                        /*
                         val data=weatherData.forecast.list
                         viewModel.getWeatherDataForCurrentDate(data)
                         Log.i("HomeFragment", " data: $data")
@@ -100,7 +105,7 @@ class HomeFragment : Fragment() {
             settingSharedPreferences.getLocationPref().collect { location ->
                 // Handle the retrieved location
                 Log.i("HomeFragment", "Retrieved location: $location")
-                 var data=location
+                var data=location
 
             }
         }
@@ -121,9 +126,6 @@ class HomeFragment : Fragment() {
             My_LOCATION_PERMISSION_ID
         )
     }
-
-
-
     private fun checkPermission(): Boolean {
         return (ActivityCompat.checkSelfPermission(
             requireContext(),
@@ -145,7 +147,7 @@ class HomeFragment : Fragment() {
                 startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
             }
             .setNegativeButton("Cancel") { dialog, which ->
-                // Handle cancel button click
+
             }
             .show()
     }

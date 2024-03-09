@@ -21,6 +21,7 @@ class HomeViewModel(private val application: Application, private val repository
     val weatherForecast: StateFlow<ApiWeatherData> = _weatherForecast
 
     private val locationManager: WeatherLocationManagerInterface = WeatherLocationManager.getInstance(application)
+    val filteredLists = mutableListOf<List<WeatherData>>()
 
     private val _location = MutableStateFlow<LocationStatus>(LocationStatus.Loading)
     val location: StateFlow<LocationStatus> = _location
@@ -33,8 +34,8 @@ class HomeViewModel(private val application: Application, private val repository
                 .collect { result ->
                     _weatherForecast.value = ApiWeatherData.Success(result)
                     val list = result.list
-                    val filteredLists = mutableListOf<List<WeatherData>>()
-
+                    val cety=result.city.name
+                    Log.i("TAG", "fetchWeatherForecast: $cety")
                     val groupedWeatherData = list.groupBy { it.dtTxt?.substring(0, 10) }
                     groupedWeatherData.forEach { (_, weatherList) ->
 

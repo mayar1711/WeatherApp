@@ -13,7 +13,9 @@
     <color name="white_400">#DEF2F2F2</color>
     <color name="white_300">#99F2F2F2</color>
     <color name="white_100">#A5A5A5</color>
-    <color name="primary_color">#86ACC7</color>
+    <color name="primary_color">#8CB6D3</color>
     <color name="secondary_color">#51697A</color>
     <color name="light_blue">#A6C5DA</color>
+    <color name="blue_200">#29B2DD</color>
+    <color name="blue_400">#1094BD</color>
 </resources>
