@@ -18,6 +18,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.temptrack.data.network.ApiWeatherData
 import com.example.temptrack.data.network.RetrofitClient
+import com.example.temptrack.data.network.datasource.WeatherRemoteDataSourceImpl
+import com.example.temptrack.data.repositry.WeatherRepository
 import com.example.temptrack.data.repositry.WeatherRepositoryImpl
 import com.example.temptrack.databinding.FragmentHomeBinding
 import com.example.temptrack.datastore.SettingDataStorePreferences
@@ -46,7 +48,7 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val repository = WeatherRepositoryImpl.getInstance(RetrofitClient.weatherApiService)
+        val repository = WeatherRepositoryImpl.getInstance(WeatherRemoteDataSourceImpl.getInstance(RetrofitClient.weatherApiService))
         val factory = HomeViewModelFactory(requireActivity().application,repository)
         viewModel = ViewModelProvider(this, factory).get(HomeViewModel::class.java)
         viewModel.fetchWeatherForecast(44.34, 10.99,"metric","en")
