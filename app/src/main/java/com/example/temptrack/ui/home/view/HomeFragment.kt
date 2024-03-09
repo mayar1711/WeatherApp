@@ -1,6 +1,5 @@
 package com.example.temptrack.ui.home.view
 
-
 import android.Manifest
 import android.app.AlertDialog
 import android.content.Context
@@ -18,8 +17,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.temptrack.data.network.ApiWeatherData
-import com.example.temptrack.data.repositry.WeatherRepositoryImpl
 import com.example.temptrack.data.network.RetrofitClient
+import com.example.temptrack.data.repositry.WeatherRepositoryImpl
 import com.example.temptrack.databinding.FragmentHomeBinding
 import com.example.temptrack.datastore.SettingDataStorePreferences
 import com.example.temptrack.location.obtainLocation
@@ -47,7 +46,7 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val repository = WeatherRepositoryImpl(RetrofitClient.weatherApiService)
+        val repository = WeatherRepositoryImpl.getInstance(RetrofitClient.weatherApiService)
         val factory = HomeViewModelFactory(requireActivity().application,repository)
         viewModel = ViewModelProvider(this, factory).get(HomeViewModel::class.java)
         viewModel.fetchWeatherForecast(44.34, 10.99,"metric","en")
@@ -73,7 +72,6 @@ class HomeFragment : Fragment() {
                         Log.i("HomeFragment", " data: $data")
 */
 
-                        // Update UI with forecast data
                     }
 
                     is ApiWeatherData.Error -> {
@@ -85,6 +83,8 @@ class HomeFragment : Fragment() {
                     is ApiWeatherData.Loading -> {
                         // Show loading indicator
                     }
+
+                    else -> {}
                 }
             }
         }

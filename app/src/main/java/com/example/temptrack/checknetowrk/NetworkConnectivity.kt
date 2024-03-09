@@ -8,8 +8,6 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
-private const val TAG = "NetworkConnectivity"
-
 class NetworkConnectivity private constructor(val application: Application) {
 
     private val networkRequest =
@@ -25,13 +23,13 @@ class NetworkConnectivity private constructor(val application: Application) {
     private val networkCallback = object : ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
             super.onAvailable(network)
-            Log.d(TAG, "onAvailable: ")
+            Log.d("TAG", "onAvailable: ")
             _connectivitySharedFlow.tryEmit(NetworkStatus.CONNECTED)
         }
 
         override fun onLost(network: Network) {
             super.onLost(network)
-            Log.d(TAG, "onLost: ")
+            Log.d("TAG", "onLost: ")
             _connectivitySharedFlow.tryEmit(NetworkStatus.LOST)
         }
     }

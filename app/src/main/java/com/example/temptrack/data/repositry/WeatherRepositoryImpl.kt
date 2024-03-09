@@ -1,18 +1,30 @@
 package com.example.temptrack.data.repositry
 
-import android.view.textclassifier.TextLanguage
 import com.example.temptrack.data.model.WeatherForecastResponse
-import com.example.temptrack.data.network.ApiService
+import com.example.temptrack.data.network.datasource.WeatherRemoteDataSource
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 
-class WeatherRepositoryImpl(private val apiService: ApiService) : WeatherRepository {
-    override fun getWeatherForecast(latitude: Double, longitude: Double,unit:String,language: String): Flow<WeatherForecastResponse> = flow {
-            val response = apiService.getWeatherForecast(latitude, longitude,unit,language)
-            emit(response)
+class WeatherRepositoryImpl private constructor(private val remoteDataSource: WeatherRemoteDataSource) :
+    WeatherRepository {
+
+    companion object {
+        @Volatile
+        private var instance: WeatherRepositoryImpl? = null
+
+        fun getInstance(remoteDataSource: WeatherRemoteDataSource): WeatherRepositoryImpl {
+            return instance ?: synchronized(this) {
+                instance ?: WeatherRepositoryImpl(remoteDataSource).also { instance = it }
+            }
+        }
+    }
+
+    override fun getWeatherForecast(latitude: Double, longitude: Double, unit: String, language: String): Flow<WeatherForecastResponse> = flow {
+        val response = remoteDataSource.getWeatherForecast(latitude, longitude, unit, language)
+        emit(response)
     }.flowOn(Dispatchers.IO)
 
     override suspend fun getLocation(): LatLng {
