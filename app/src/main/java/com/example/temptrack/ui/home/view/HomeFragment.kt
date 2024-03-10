@@ -16,14 +16,15 @@ import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.temptrack.data.model.WeatherForecastResponse
+import com.example.temptrack.data.database.DatabaseClient
+import com.example.temptrack.data.database.FavoriteLocalDataSourceImo
 import com.example.temptrack.data.model.convertToDailyWeather
 import com.example.temptrack.data.model.convertToHourlyWeather
 import com.example.temptrack.data.network.ApiWeatherData
 import com.example.temptrack.data.network.RetrofitClient
 import com.example.temptrack.data.network.datasource.WeatherRemoteDataSourceImpl
-import com.example.temptrack.data.repositry.WeatherRepository
 import com.example.temptrack.data.repositry.WeatherRepositoryImpl
 import com.example.temptrack.databinding.FragmentHomeBinding
 import com.example.temptrack.datastore.SettingDataStorePreferences
@@ -31,7 +32,8 @@ import com.example.temptrack.location.obtainLocation
 import com.example.temptrack.ui.home.viewmodel.HomeViewModel
 import com.example.temptrack.ui.home.viewmodel.HomeViewModelFactory
 import kotlinx.coroutines.launch
-import java.util.Calendar
+import com.example.temptrack.R
+
 
 class HomeFragment : Fragment() {
 
@@ -58,19 +60,23 @@ class HomeFragment : Fragment() {
 
         }
         binding.recyclerForToday.adapter=todayAdapter
+
+        binding.menu.setOnClickListener {
+            findNavController().navigate(R.id.action_homeFragment2_to_favorite)
+        }
         return binding.root
     }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val repository = WeatherRepositoryImpl.getInstance(WeatherRemoteDataSourceImpl.getInstance(RetrofitClient.weatherApiService))
+        val repository = WeatherRepositoryImpl.getInstance(WeatherRemoteDataSourceImpl.getInstance(RetrofitClient.weatherApiService),
+            FavoriteLocalDataSourceImo.getInstance(DatabaseClient.getInstance(requireContext()).favoriteDao()))
         val factory = HomeViewModelFactory(requireActivity().application,repository)
 
-        viewModel = ViewModelProvider(this, factory).get(HomeViewModel::class.java)
+        viewModel = ViewModelProvider(this, factory)[HomeViewModel::class.java]
         viewModel.fetchWeatherForecast(44.34, 10.99,"metric","en")
 //        binding.recyclerForWeek.adapter=adapter
-
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.weatherForecast.collect { weatherData ->
                 when (weatherData) {

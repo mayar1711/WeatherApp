@@ -6,10 +6,19 @@ import android.app.Application
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.example.temptrack.R
+import com.example.temptrack.data.database.DatabaseClient
+import com.example.temptrack.data.database.FavoriteLocalDataSourceImo
+import com.example.temptrack.data.model.TempData
+import com.example.temptrack.data.network.ApiWeatherData
+import com.example.temptrack.data.network.RetrofitClient
+import com.example.temptrack.data.network.datasource.WeatherRemoteDataSourceImpl
+import com.example.temptrack.data.repositry.WeatherRepositoryImpl
+import com.example.temptrack.databinding.ActivityMapsBinding
 import com.example.temptrack.location.LocationStatus
 import com.example.temptrack.location.WeatherLocationManager
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -30,19 +39,58 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, CoroutineScope by 
     private lateinit var map: GoogleMap
     private var marker: Marker? = null
     private lateinit var _latLng: LatLng
-
-    private val viewModel by viewModels<MapsViewModel> {
-        MapsViewModelFactory(
-            WeatherLocationManager.getInstance(applicationContext as Application)
-        )
-    }
-
+    private var isLocationReceived:Boolean=false
+    private lateinit var binding:ActivityMapsBinding
+    private var latitude:Double = 0.0
+    private var longitude:Double = 0.0
+    private lateinit var  viewModel:MapsViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.maps)
+        binding=ActivityMapsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(this)
+        val repository = WeatherRepositoryImpl.getInstance(
+            WeatherRemoteDataSourceImpl.getInstance(RetrofitClient.weatherApiService),
+            FavoriteLocalDataSourceImo.getInstance(DatabaseClient.getInstance(this).favoriteDao()))
+        val factory = MapsViewModelFactory( WeatherLocationManager.getInstance(applicationContext as Application),repository)
+         viewModel=ViewModelProvider(this, factory)[MapsViewModel::class.java]
+
+        binding.add.setOnClickListener {
+           viewModel.fetchWeatherForecast(latitude = latitude, longitude = longitude, language = "en", unit = "metric")
+           lifecycleScope.launch {
+               viewModel.weatherForecast.collect{
+                   result->
+                   when (result) {
+                       is ApiWeatherData.Success -> {
+                            val result=result.forecast
+                           val tempData = TempData(
+                               minTemp = result.daily.get(0).temp.min,
+                               maxTemp = result.daily.get(0).temp.max,
+                               temp = result.current.temp,
+                               city = result.timezone,
+                               icon = result.current.weather.get(0).icon,
+                               lang = longitude,
+                               lat = latitude
+                           )
+                           viewModel.insertFavorite(tempData)
+                           finish()
+                       }
+
+                       is ApiWeatherData.Error -> {
+                           val errorMessage = result.message
+                           Log.i("HomeFragment", "Error fetching weather forecast: $errorMessage")
+                       }
+
+                       is ApiWeatherData.Loading -> {
+                           // Show loading indicator
+                       }
+
+                   }
+               }
+           }
+      }
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -69,7 +117,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, CoroutineScope by 
         launch {
             viewModel.location.collect { locationStatus ->
                 if (locationStatus is LocationStatus.Success) {
+                    isLocationReceived=true
                     val currentLatLng = LatLng(locationStatus.latLng.latitude, locationStatus.latLng.longitude)
+                   latitude=currentLatLng.latitude
+                    longitude=currentLatLng.longitude
                     Log.i("MapsActivity", "Current Location: $currentLatLng")
                     map.moveCamera(
                         CameraUpdateFactory.newLatLngZoom(
@@ -137,7 +188,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, CoroutineScope by 
         super.onDestroy()
         cancel()
     }
-    // Constants
     private val LOCATION_PERMISSION_REQUEST_CODE = 1001
 
     override fun onRequestPermissionsResult(
