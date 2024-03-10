@@ -20,11 +20,9 @@ fun obtainLocation(context: Context, settingSharedPreferences: SettingDataStoreP
             val latitude = location.latitude
             val longitude = location.longitude
             val locationString = "$latitude,$longitude"
-            // Save the obtained location
             CoroutineScope(Dispatchers.IO).launch {
                 settingSharedPreferences.setLocationPref(locationString)
             }
-            // Stop listening for location updates to save battery
             locationManager.removeUpdates(this)
         }
 
@@ -32,7 +30,6 @@ fun obtainLocation(context: Context, settingSharedPreferences: SettingDataStoreP
 
     }
 
-    // Request location updates
     if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
         ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
     ) {

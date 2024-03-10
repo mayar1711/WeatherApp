@@ -4,7 +4,6 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.temptrack.data.model.WeatherData
 import com.example.temptrack.data.network.ApiWeatherData
 import com.example.temptrack.data.repositry.WeatherRepository
 import com.example.temptrack.location.LocationStatus
@@ -14,15 +13,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
-import java.util.Calendar
 
-class HomeViewModel(private val application: Application, private val repository: WeatherRepository) : ViewModel() {
+class HomeViewModel(application: Application, private val repository: WeatherRepository) : ViewModel() {
     private val _weatherForecast = MutableStateFlow<ApiWeatherData>(ApiWeatherData.Loading)
     val weatherForecast: StateFlow<ApiWeatherData> = _weatherForecast
-
+    //val weatherForToday = mutableListOf<WeatherData?>()
     private val locationManager: WeatherLocationManagerInterface = WeatherLocationManager.getInstance(application)
-    val filteredLists = mutableListOf<List<WeatherData>>()
-
+  //  val filteredLists = mutableListOf<List<WeatherData>>()
     private val _location = MutableStateFlow<LocationStatus>(LocationStatus.Loading)
     val location: StateFlow<LocationStatus> = _location
     fun fetchWeatherForecast(latitude: Double, longitude: Double,unit:String,language: String) {
@@ -33,17 +30,23 @@ class HomeViewModel(private val application: Application, private val repository
                 }
                 .collect { result ->
                     _weatherForecast.value = ApiWeatherData.Success(result)
-                    val list = result.list
-                    val cety=result.city.name
-                    Log.i("TAG", "fetchWeatherForecast: $cety")
+ /*                   val list = result.list
                     val groupedWeatherData = list.groupBy { it.dtTxt?.substring(0, 10) }
                     groupedWeatherData.forEach { (_, weatherList) ->
 
                         filteredLists.add(weatherList)
 
                     }
+                    if (filteredLists.isNotEmpty()) {
+                        filteredLists[0].let { weatherForToday.addAll(it) }
+                    }
                     Log.i("TAG", "fetchWeatherForecast: ${filteredLists[0]}")
-                }
+                    Log.i("TAG", "fetchWeatherForecast: ${filteredLists[1]}")
+                    Log.i("TAG", "fetchWeatherForecast: ${filteredLists[2]}")
+                    Log.i("TAG", "fetchWeatherForecast: ${filteredLists[3]}")
+                    Log.i("TAG", "fetchWeatherForecast: ${filteredLists[4]}")
+
+ */               }
         }
     }
     fun requestGPSLocation() {
@@ -66,6 +69,25 @@ class HomeViewModel(private val application: Application, private val repository
             }
         }
     }
+ /*   fun getWeatherForWeek(): List<WeatherData?> {
+        val weatherForWeek = mutableListOf<WeatherData?>()
+        weatherForWeek.add(filteredLists.getOrNull(1)?.getOrNull(0))
+        weatherForWeek.add(filteredLists.getOrNull(2)?.getOrNull(0))
+        weatherForWeek.add(filteredLists.getOrNull(3)?.getOrNull(0))
+        weatherForWeek.add(filteredLists.getOrNull(4)?.getOrNull(0))
+        Log.i("TAG", "getWeatherForWeek: $weatherForWeek")
+        return weatherForWeek
+    }*/
+/*
+    fun getWeatherForToday(): List<WeatherData?> {
+        val weatherForToday = mutableListOf<WeatherData?>()
+        if (filteredLists.isNotEmpty()) {
+            filteredLists[0].let { weatherForToday.addAll(it) }
+        }
+        Log.i("TAG", "getWeatherForToday: $weatherForToday")
+        return weatherForToday
+    }
+*/
 
 }
 

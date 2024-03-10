@@ -6,7 +6,7 @@ import retrofit2.http.Query
 import com.example.temptrack.BuildConfig
 
 interface ApiService {
-    @GET("forecast")
+    @GET("onecall")
     suspend fun getWeatherForecast(
         @Query("lat") latitude: Double,
         @Query("lon") longitude: Double,

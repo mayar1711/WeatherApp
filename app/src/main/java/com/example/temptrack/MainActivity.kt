@@ -12,7 +12,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-      val settingDataStorePreferences = SettingDataStorePreferences.getInstance(this)
-        obtainLocation(this, settingDataStorePreferences)
+
     }
 }

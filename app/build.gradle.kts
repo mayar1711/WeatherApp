@@ -86,7 +86,7 @@ dependencies {
     implementation ("com.makeramen:roundedimageview:2.3.0")
 
     //Material Design
-    implementation ("com.google.android.material:material:1.8.0")
+    implementation ("com.google.android.material:material:1.11.0")
     //ViewModel & livedata
     implementation ("androidx.lifecycle:lifecycle-extensions:2.2.0")
     implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
@@ -112,5 +112,10 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences-core:1.0.0")
     implementation ("androidx.datastore:datastore-preferences:1.0.0")
 
+
+    //picasso
+    implementation ("com.squareup.picasso:picasso:2.8")
+
+    implementation ("com.airbnb.android:lottie:5.2.0")
 
 }

@@ -16,6 +16,10 @@ import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.temptrack.data.model.WeatherForecastResponse
+import com.example.temptrack.data.model.convertToDailyWeather
+import com.example.temptrack.data.model.convertToHourlyWeather
 import com.example.temptrack.data.network.ApiWeatherData
 import com.example.temptrack.data.network.RetrofitClient
 import com.example.temptrack.data.network.datasource.WeatherRemoteDataSourceImpl
@@ -36,44 +40,49 @@ class HomeFragment : Fragment() {
     val My_LOCATION_PERMISSION_ID = 5005
     private lateinit var settingSharedPreferences: SettingDataStorePreferences
     lateinit var  location :String
-
-
+    private lateinit var adapter:DailyWeatherAdapter
+    private lateinit var todayAdapter: HourlyWeatherAdapter
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentHomeBinding.inflate(inflater, container, false)
+        binding.recyclerForWeek.layoutManager = LinearLayoutManager(requireContext())
+        adapter = DailyWeatherAdapter { dailyWeather ->
+        }
+        binding.recyclerForWeek.adapter = adapter
+
+        binding.recyclerForToday.layoutManager=LinearLayoutManager(requireContext())
+
+        todayAdapter= HourlyWeatherAdapter {hourlyWeather ->
+
+        }
+        binding.recyclerForToday.adapter=todayAdapter
         return binding.root
     }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val repository = WeatherRepositoryImpl.getInstance(WeatherRemoteDataSourceImpl.getInstance(RetrofitClient.weatherApiService))
         val factory = HomeViewModelFactory(requireActivity().application,repository)
+
         viewModel = ViewModelProvider(this, factory).get(HomeViewModel::class.java)
         viewModel.fetchWeatherForecast(44.34, 10.99,"metric","en")
-        val calendar = Calendar.getInstance()
-        val year = calendar.get(Calendar.YEAR)
-        val month = calendar.get(Calendar.MONTH) + 1
-        val dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH)
-        Log.i("CurrentDate", "Year: $year, Month: $month, Day: $dayOfMonth")
+//        binding.recyclerForWeek.adapter=adapter
+
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.weatherForecast.collect { weatherData ->
                 when (weatherData) {
                     is ApiWeatherData.Success -> {
                         val forecast = weatherData.forecast
                         Log.i("HomeFragment", "Weather forecast data: $forecast")
-                        Log.i("HomeFragment", "Weather forecast data:\n${forecast.list[30]}")
-                        binding.tvCity.text=forecast.city.name
-                        binding.tvTemp.text=forecast.list[0].main.temp.toString()
-                        binding.tvDescription.text=forecast.list[0].weather[0].description
-                        binding.iconforNow
-                        /*
-                        val data=weatherData.forecast.list
-                        viewModel.getWeatherDataForCurrentDate(data)
-                        Log.i("HomeFragment", " data: $data")
-*/
-
+                        val dailyItem=weatherData.forecast.daily
+                        val data= convertToDailyWeather(dailyItem)
+                        adapter.submitList(data)
+                        val hourlyItem=weatherData.forecast.hourly
+                        val homeData= convertToHourlyWeather(hourlyItem)
+                        todayAdapter.submitList(homeData)
                     }
 
                     is ApiWeatherData.Error -> {
