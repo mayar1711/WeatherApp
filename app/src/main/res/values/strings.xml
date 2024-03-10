@@ -8,4 +8,17 @@
     <string name="navigation_drawer_open">Open Navigation Drawer</string>
     <string name="navigation_drawer_close">Close  Navigation Drawer</string>
     <string name="allTimeOfTheDay">All Time Of The Day</string>
+    <string name="title_activity_maps">MapsActivity</string>
+    <string name="title_activity_splash">SplashActivity</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="addtofav">Add</string>
+    <string name="hint_search">search</string>
+    <string name="sunny">sunny</string>
+    <string name="next_forcast">Next Forcast</string>
+    <string name="city">Cairo</string>
 </resources>

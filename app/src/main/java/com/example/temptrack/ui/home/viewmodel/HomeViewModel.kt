@@ -1,27 +1,54 @@
 package com.example.temptrack.ui.home.viewmodel
 
+import android.app.Application
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.temptrack.data.network.ApiWeatherData
 import com.example.temptrack.data.repositry.WeatherRepository
-import com.example.temptrack.data.model.WeatherForecastResponse
+import com.example.temptrack.location.LocationStatus
+import com.example.temptrack.location.WeatherLocationManager
+import com.example.temptrack.location.WeatherLocationManagerInterface
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
-class HomeViewModel(private val repository: WeatherRepository) : ViewModel() {
-    private val _weatherForecast = MutableLiveData<WeatherForecastResponse>()
-    val weatherForecast: LiveData<WeatherForecastResponse> = _weatherForecast
-
-    fun fetchWeatherForecast(latitude: Double, longitude: Double) {
+class HomeViewModel(application: Application, private val repository: WeatherRepository) : ViewModel() {
+    private val _weatherForecast = MutableStateFlow<ApiWeatherData>(ApiWeatherData.Loading)
+    val weatherForecast: StateFlow<ApiWeatherData> = _weatherForecast
+    private val locationManager: WeatherLocationManagerInterface = WeatherLocationManager.getInstance(application)
+    private val _location = MutableStateFlow<LocationStatus>(LocationStatus.Loading)
+    val location: StateFlow<LocationStatus> = _location
+    fun fetchWeatherForecast(latitude: Double, longitude: Double,unit:String,language: String) {
         viewModelScope.launch {
-            try {
-                val forecast = repository.getWeatherForecast(latitude, longitude)
-                _weatherForecast.postValue(forecast)
-                Log.i("TAG", "fetchWeatherForecast: $forecast")
-            } catch (e: Exception) {
-                Log.i("TAG", "fetchWeatherForecast: ${e.message}")
+            repository.getWeatherForecast(latitude, longitude,unit,language)
+                .catch { e ->
+                    _weatherForecast.value = ApiWeatherData.Error(e)
+                }
+                .collect { result ->
+                    _weatherForecast.value = ApiWeatherData.Success(result)
+               }
+        }
+    }
+    fun requestGPSLocation() {
+        locationManager.requestLocationByGPS()
+        viewModelScope.launch {
+            locationManager.location.collect { locationStatus ->
+                when (locationStatus) {
+                    is LocationStatus.Success -> {
+                        Log.d("HomeViewModel", "Received GPS location: ${locationStatus.latLng}")
+                    }
+                    is LocationStatus.Failure -> {
+                        Log.e("HomeViewModel", "Failed to receive GPS location: ${locationStatus.throwable}")
+                    }
+                    else -> {
+                        Log.e("HomeViewModel", "Failed to receive GPS location")
+
+                    }
+                }
             }
         }
     }
 }
+
