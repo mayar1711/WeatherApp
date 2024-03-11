@@ -21,4 +21,6 @@
     <string name="sunny">sunny</string>
     <string name="next_forcast">Next Forcast</string>
     <string name="city">Cairo</string>
+    <string name="language">Language</string>
+    <string name="location">Location</string>
 </resources>

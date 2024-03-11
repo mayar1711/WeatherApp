@@ -33,6 +33,7 @@ import com.example.temptrack.ui.home.viewmodel.HomeViewModel
 import com.example.temptrack.ui.home.viewmodel.HomeViewModelFactory
 import kotlinx.coroutines.launch
 import com.example.temptrack.R
+import com.example.temptrack.util.ResultCallBack
 
 
 class HomeFragment : Fragment() {
@@ -80,24 +81,24 @@ class HomeFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.weatherForecast.collect { weatherData ->
                 when (weatherData) {
-                    is ApiWeatherData.Success -> {
-                        val forecast = weatherData.forecast
+                    is ResultCallBack.Success -> {
+                        val forecast = weatherData.data
                         Log.i("HomeFragment", "Weather forecast data: $forecast")
-                        val dailyItem=weatherData.forecast.daily
+                        val dailyItem=weatherData.data.daily
                         val data= convertToDailyWeather(dailyItem)
                         adapter.submitList(data)
-                        val hourlyItem=weatherData.forecast.hourly
+                        val hourlyItem=weatherData.data.hourly
                         val homeData= convertToHourlyWeather(hourlyItem)
                         todayAdapter.submitList(homeData)
                     }
 
-                    is ApiWeatherData.Error -> {
+                    is ResultCallBack.Error -> {
                         val errorMessage = weatherData.message
                         Log.i("HomeFragment", "Error fetching weather forecast: $errorMessage")
                         // Show error message in UI
                     }
 
-                    is ApiWeatherData.Loading -> {
+                    is ResultCallBack.Loading -> {
                         // Show loading indicator
                     }
 

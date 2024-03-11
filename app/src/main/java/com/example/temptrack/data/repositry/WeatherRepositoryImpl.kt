@@ -29,10 +29,6 @@ class WeatherRepositoryImpl private constructor(private val remoteDataSource: We
         emit(response)
     }.flowOn(Dispatchers.IO)
 
-    override suspend fun getLocation(): LatLng {
-        TODO("Not yet implemented")
-    }
-
     override suspend fun insertFavorite(favorite: TempData) {
         localDataSource.insertFavorite(favorite)
     }

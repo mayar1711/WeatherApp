@@ -9,7 +9,7 @@ class FavoriteLocalDataSourceImo private constructor(private val favoriteDao: Fa
 
     companion object{
         @Volatile
-        var instance: FavoriteLocalDataSourceImo?=null
+      private  var instance: FavoriteLocalDataSourceImo?=null
 
         fun getInstance ( favoriteDao: FavoriteDao): FavoriteLocalDataSourceImo{
             return instance?: synchronized(this){
