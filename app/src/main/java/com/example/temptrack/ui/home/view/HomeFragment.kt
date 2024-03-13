@@ -20,8 +20,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.temptrack.data.database.DatabaseClient
 import com.example.temptrack.data.database.FavoriteLocalDataSourceImo
-import com.example.temptrack.data.model.convertToDailyWeather
-import com.example.temptrack.data.model.convertToHourlyWeather
 import com.example.temptrack.data.network.ApiWeatherData
 import com.example.temptrack.data.network.RetrofitClient
 import com.example.temptrack.data.network.datasource.WeatherRemoteDataSourceImpl
@@ -34,6 +32,8 @@ import com.example.temptrack.ui.home.viewmodel.HomeViewModelFactory
 import kotlinx.coroutines.launch
 import com.example.temptrack.R
 import com.example.temptrack.util.ResultCallBack
+import com.example.temptrack.util.convertToDailyWeather
+import com.example.temptrack.util.convertToHourlyWeather
 
 
 class HomeFragment : Fragment() {
@@ -45,6 +45,7 @@ class HomeFragment : Fragment() {
     lateinit var  location :String
     private lateinit var adapter:DailyWeatherAdapter
     private lateinit var todayAdapter: HourlyWeatherAdapter
+    lateinit var unit:String
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -62,9 +63,6 @@ class HomeFragment : Fragment() {
         }
         binding.recyclerForToday.adapter=todayAdapter
 
-        binding.menu.setOnClickListener {
-            findNavController().navigate(R.id.action_homeFragment2_to_favorite)
-        }
         return binding.root
     }
 
@@ -74,10 +72,26 @@ class HomeFragment : Fragment() {
         val repository = WeatherRepositoryImpl.getInstance(WeatherRemoteDataSourceImpl.getInstance(RetrofitClient.weatherApiService),
             FavoriteLocalDataSourceImo.getInstance(DatabaseClient.getInstance(requireContext()).favoriteDao()))
         val factory = HomeViewModelFactory(requireActivity().application,repository)
-
+        settingSharedPreferences = SettingDataStorePreferences.getInstance(requireContext())
         viewModel = ViewModelProvider(this, factory)[HomeViewModel::class.java]
-        viewModel.fetchWeatherForecast(44.34, 10.99,"metric","en")
-//        binding.recyclerForWeek.adapter=adapter
+        viewLifecycleOwner.lifecycleScope.launch {
+            settingSharedPreferences.getTempPref().collect { tempPref ->
+                  unit = when(tempPref){
+                      SettingDataStorePreferences.CELSIUS-> "metric"
+                      SettingDataStorePreferences.FAHRENHEIT-> "imperial"
+                      SettingDataStorePreferences.KELVIN-> "standard"
+                      else-> "metric "
+                  }
+                     settingSharedPreferences.getLangPreferences().collect { langPref ->
+                    val language =when(langPref){
+                        SettingDataStorePreferences.ENGLISH->"en"
+                        SettingDataStorePreferences.ARABIC->"ar"
+                        else->"en"
+                    }
+                    viewModel.fetchWeatherForecast(44.34, 10.99, unit, language)
+                }
+            }
+        }
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.weatherForecast.collect { weatherData ->
                 when (weatherData) {
@@ -95,18 +109,14 @@ class HomeFragment : Fragment() {
                     is ResultCallBack.Error -> {
                         val errorMessage = weatherData.message
                         Log.i("HomeFragment", "Error fetching weather forecast: $errorMessage")
-                        // Show error message in UI
                     }
 
                     is ResultCallBack.Loading -> {
-                        // Show loading indicator
                     }
 
-                    else -> {}
                 }
             }
         }
-        settingSharedPreferences = SettingDataStorePreferences.getInstance(requireContext())
 
         if (checkPermission()) {
             if (isLocationEnabled()) {
@@ -119,14 +129,7 @@ class HomeFragment : Fragment() {
         } else {
             requestPermission()
         }
-        viewLifecycleOwner.lifecycleScope.launch {
-            settingSharedPreferences.getLocationPref().collect { location ->
-                // Handle the retrieved location
-                Log.i("HomeFragment", "Retrieved location: $location")
-                var data=location
 
-            }
-        }
     }
     private fun isLocationEnabled(): Boolean {
         val locationManger: LocationManager =

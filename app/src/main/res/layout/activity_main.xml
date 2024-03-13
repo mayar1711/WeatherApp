@@ -11,7 +11,9 @@
         android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".MainActivity">
+        android:background="@color/light_blue"
+    tools:context=".MainActivity">
+
 
             <androidx.fragment.app.FragmentContainerView
             android:id="@+id/nav_host_fragment"
@@ -26,6 +28,16 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.0"
             app:navGraph="@navigation/nav_graph" />
+
+        <ImageView
+            android:id="@+id/menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/menu" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout></layout>

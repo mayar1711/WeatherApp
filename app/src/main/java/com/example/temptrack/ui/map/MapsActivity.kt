@@ -21,6 +21,7 @@ import com.example.temptrack.data.repositry.WeatherRepositoryImpl
 import com.example.temptrack.databinding.ActivityMapsBinding
 import com.example.temptrack.location.LocationStatus
 import com.example.temptrack.location.WeatherLocationManager
+import com.example.temptrack.util.getAddress
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -56,7 +57,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, CoroutineScope by 
             FavoriteLocalDataSourceImo.getInstance(DatabaseClient.getInstance(this).favoriteDao()))
         val factory = MapsViewModelFactory( WeatherLocationManager.getInstance(applicationContext as Application),repository)
          viewModel=ViewModelProvider(this, factory)[MapsViewModel::class.java]
-
+         val city= getAddress(context = applicationContext,latitude,longitude)
         binding.add.setOnClickListener {
            viewModel.fetchWeatherForecast(latitude = latitude, longitude = longitude, language = "en", unit = "metric")
            lifecycleScope.launch {
@@ -69,7 +70,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, CoroutineScope by 
                                minTemp = result.daily.get(0).temp.min,
                                maxTemp = result.daily.get(0).temp.max,
                                temp = result.current.temp,
-                               city = result.timezone,
+                               city =result.timezone,
                                icon = result.current.weather.get(0).icon,
                                lang = longitude,
                                lat = latitude

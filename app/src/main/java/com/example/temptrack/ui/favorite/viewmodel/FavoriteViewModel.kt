@@ -22,6 +22,7 @@ class FavoriteViewModel(application: Application, private val repository: Weathe
                 _favoriteList.value = ResultCallBack.Error(e)
             }
             .collect { list ->
+
                 _favoriteList.value = ResultCallBack.Success(list)
                 Log.i("TAG", "getFavoriteList: $list")
             }
@@ -31,6 +32,11 @@ class FavoriteViewModel(application: Application, private val repository: Weathe
         viewModelScope.launch {
             repository.deleteFavorite(tempData)
             getFavoriteList()
+        }
+    }
+    fun updateAllFavorite1(tempData: TempData){
+        viewModelScope.launch {
+            repository.updateFavorite(tempData)
         }
     }
 }

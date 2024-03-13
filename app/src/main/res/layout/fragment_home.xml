@@ -214,15 +214,7 @@
                 tools:layout_editor_absoluteX="62dp"
                 tools:layout_editor_absoluteY="315dp" />
 
-            <ImageView
-                android:id="@+id/menu"
-                android:layout_width="45dp"
-                android:layout_height="34dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/menu" />
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>

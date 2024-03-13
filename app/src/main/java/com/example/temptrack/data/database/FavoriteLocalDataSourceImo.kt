@@ -1,5 +1,6 @@
 package com.example.temptrack.data.database
 
+import com.example.temptrack.data.model.RoomAlert
 import com.example.temptrack.data.model.TempData
 import com.example.temptrack.data.network.ApiService
 import com.example.temptrack.data.network.datasource.WeatherRemoteDataSourceImpl
@@ -25,7 +26,23 @@ class FavoriteLocalDataSourceImo private constructor(private val favoriteDao: Fa
         favoriteDao.deleteFavorite(favorite)
     }
 
+    override suspend fun updateFavorite(favorite: TempData) {
+        favoriteDao.updateAll(favorite)
+    }
+
     override fun getAllFavorite(): Flow<List<TempData>> {
          return favoriteDao.getAllFavorite()
+    }
+
+    override fun getAllAlerts(): Flow<List<RoomAlert>> {
+         return favoriteDao.getAllAlerts()
+    }
+
+    override suspend fun insertAlert(alert: RoomAlert) {
+        favoriteDao.insertAlert(alert)
+    }
+
+    override suspend fun deleteAlert(alert: RoomAlert) {
+        favoriteDao.deleteAlert(alert)
     }
 }

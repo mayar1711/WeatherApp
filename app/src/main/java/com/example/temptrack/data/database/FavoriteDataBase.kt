@@ -4,9 +4,10 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.temptrack.data.model.RoomAlert
 import com.example.temptrack.data.model.TempData
 
-@Database(entities = [TempData::class], version = 1)
+@Database(entities = [TempData::class,RoomAlert::class], version = 6)
 abstract class FavoriteDataBase : RoomDatabase() {
     abstract fun favoriteDao():FavoriteDao
 }

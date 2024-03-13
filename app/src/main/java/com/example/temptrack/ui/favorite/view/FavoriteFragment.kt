@@ -65,6 +65,7 @@ class FavoriteFragment : Fragment() {
                 when (result) {
                     is ResultCallBack.Success -> {
                         adapter.submitList(result.data)
+                        Log.i("FavoriteFragment", "onViewCreated: ${result.data}")
                     }
                     is ResultCallBack.Error -> {
                         Log.e("FavoriteFragment", "Error: ${result.message}")

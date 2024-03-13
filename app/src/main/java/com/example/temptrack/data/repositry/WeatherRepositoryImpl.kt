@@ -1,6 +1,7 @@
 package com.example.temptrack.data.repositry
 
 import com.example.temptrack.data.database.FavoriteLocalDataSource
+import com.example.temptrack.data.model.RoomAlert
 import com.example.temptrack.data.model.TempData
 import com.example.temptrack.data.model.WeatherForecastResponse
 import com.example.temptrack.data.network.datasource.WeatherRemoteDataSourceImpl
@@ -32,12 +33,22 @@ class WeatherRepositoryImpl private constructor(private val remoteDataSource: We
     override suspend fun insertFavorite(favorite: TempData) {
         localDataSource.insertFavorite(favorite)
     }
-
     override suspend fun deleteFavorite(favorite: TempData) {
         localDataSource.deleteFavorite(favorite)
     }
-
+    override suspend fun updateFavorite(favorite: TempData) {
+        localDataSource.updateFavorite(favorite)
+    }
     override fun getAllFavorite(): Flow<List<TempData>> {
         return localDataSource.getAllFavorite()
+    }
+    override fun getAllAlerts(): Flow<List<RoomAlert>> {
+        return localDataSource.getAllAlerts()
+    }
+    override suspend fun insertAlert(alert: RoomAlert) {
+        localDataSource.insertAlert(alert)
+    }
+    override suspend fun deleteAlert(alert: RoomAlert) {
+        localDataSource.deleteAlert(alert)
     }
 }
