@@ -2,8 +2,6 @@ package com.example.temptrack.data.database
 
 import com.example.temptrack.data.model.RoomAlert
 import com.example.temptrack.data.model.TempData
-import com.example.temptrack.data.network.ApiService
-import com.example.temptrack.data.network.datasource.WeatherRemoteDataSourceImpl
 import kotlinx.coroutines.flow.Flow
 
 class FavoriteLocalDataSourceImo private constructor(private val favoriteDao: FavoriteDao):FavoriteLocalDataSource{

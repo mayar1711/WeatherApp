@@ -51,5 +51,10 @@
     <string name="alarm">Alarm</string>
     <string name="save_alert">Save alert</string>
     <string name="cancel">Cancel</string>
+    <string name="visibility">Visibility</string>
+    <string name="wind">Wind</string>
+    <string name="humidity">Humidity</string>
+    <string name="pressure">Pressure</string>
+    <string name="ultra_violet">Ulter Violet</string>
 
 </resources>

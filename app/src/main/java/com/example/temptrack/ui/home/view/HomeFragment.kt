@@ -34,6 +34,8 @@ import com.example.temptrack.R
 import com.example.temptrack.util.ResultCallBack
 import com.example.temptrack.util.convertToDailyWeather
 import com.example.temptrack.util.convertToHourlyWeather
+import com.example.temptrack.util.getAddress
+import com.example.temptrack.util.getImageIcon
 
 
 class HomeFragment : Fragment() {
@@ -56,7 +58,7 @@ class HomeFragment : Fragment() {
         }
         binding.recyclerForWeek.adapter = adapter
 
-        binding.recyclerForToday.layoutManager=LinearLayoutManager(requireContext())
+   //     binding.recyclerForToday.layoutManager=LinearLayoutManager(requireContext())
 
         todayAdapter= HourlyWeatherAdapter {hourlyWeather ->
 
@@ -72,6 +74,7 @@ class HomeFragment : Fragment() {
         val repository = WeatherRepositoryImpl.getInstance(WeatherRemoteDataSourceImpl.getInstance(RetrofitClient.weatherApiService),
             FavoriteLocalDataSourceImo.getInstance(DatabaseClient.getInstance(requireContext()).favoriteDao()))
         val factory = HomeViewModelFactory(requireActivity().application,repository)
+
         settingSharedPreferences = SettingDataStorePreferences.getInstance(requireContext())
         viewModel = ViewModelProvider(this, factory)[HomeViewModel::class.java]
         viewLifecycleOwner.lifecycleScope.launch {
@@ -89,7 +92,9 @@ class HomeFragment : Fragment() {
                         else->"en"
                     }
                     viewModel.fetchWeatherForecast(44.34, 10.99, unit, language)
-                }
+
+
+                     }
             }
         }
         viewLifecycleOwner.lifecycleScope.launch {
@@ -104,6 +109,13 @@ class HomeFragment : Fragment() {
                         val hourlyItem=weatherData.data.hourly
                         val homeData= convertToHourlyWeather(hourlyItem)
                         todayAdapter.submitList(homeData)
+                        dailyItem.get(0).weather.get(0).icon
+                        val icon = getImageIcon(dailyItem.get(0).weather.get(0).icon)
+                        binding.iconforNow.setImageResource(icon)
+                        binding.tvCity.text= getAddress(requireContext(),10.10,9.10)
+                        binding.tvTemp.text=weatherData.data.current.temp.toString()
+                        binding.tvDescription.text=dailyItem.get(0).weather.get(0).description
+
                     }
 
                     is ResultCallBack.Error -> {

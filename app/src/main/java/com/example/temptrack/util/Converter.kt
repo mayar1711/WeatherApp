@@ -8,9 +8,6 @@ import com.example.temptrack.data.model.DailyItem
 import com.example.temptrack.data.model.DailyWeather
 import com.example.temptrack.data.model.HourlyItem
 import com.example.temptrack.data.model.HourlyWeather
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Calendar
