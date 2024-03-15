@@ -49,6 +49,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, CoroutineScope by 
         super.onCreate(savedInstanceState)
         binding=ActivityMapsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        val fragmentName = intent?.extras?.getString("fragment_name")
+        Log.i("MAP", "onCreate: $fragmentName")
+
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(this)
@@ -59,38 +62,45 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, CoroutineScope by 
          viewModel=ViewModelProvider(this, factory)[MapsViewModel::class.java]
          val city= getAddress(context = applicationContext,latitude,longitude)
         binding.add.setOnClickListener {
-           viewModel.fetchWeatherForecast(latitude = latitude, longitude = longitude, language = "en", unit = "metric")
-           lifecycleScope.launch {
-               viewModel.weatherForecast.collect{
-                   result->
-                   when (result) {
-                       is ApiWeatherData.Success -> {
-                            val result=result.forecast
-                           val tempData = TempData(
-                               minTemp = result.daily.get(0).temp.min,
-                               maxTemp = result.daily.get(0).temp.max,
-                               temp = result.current.temp,
-                               city =result.timezone,
-                               icon = result.current.weather.get(0).icon,
-                               lang = longitude,
-                               lat = latitude
-                           )
-                           viewModel.insertFavorite(tempData)
-                           finish()
-                       }
+            if (fragmentName == "HomeFragment") {
 
-                       is ApiWeatherData.Error -> {
-                           val errorMessage = result.message
-                           Log.i("HomeFragment", "Error fetching weather forecast: $errorMessage")
-                       }
+                Log.i("MapsActivity", "Launched from HomeFragment")
+            } else if (fragmentName == "FavoriteFragment") {
+                Log.i("MapsActivity", "Launched from FavoriteFragment")
+                viewModel.fetchWeatherForecast(latitude = latitude, longitude = longitude, language = "en", unit = "metric")
+                lifecycleScope.launch {
+                    viewModel.weatherForecast.collect{
+                            result->
+                        when (result) {
+                            is ApiWeatherData.Success -> {
+                                val result=result.forecast
+                                val tempData = TempData(
+                                    minTemp = result.daily.get(0).temp.min,
+                                    maxTemp = result.daily.get(0).temp.max,
+                                    temp = result.current.temp,
+                                    city =city,
+                                    icon = result.current.weather.get(0).icon,
+                                    lang = longitude,
+                                    lat = latitude
+                                )
+                                viewModel.insertFavorite(tempData)
+                                finish()
+                            }
 
-                       is ApiWeatherData.Loading -> {
-                           // Show loading indicator
-                       }
+                            is ApiWeatherData.Error -> {
+                                val errorMessage = result.message
+                                Log.i("HomeFragment", "Error fetching weather forecast: $errorMessage")
+                            }
 
-                   }
-               }
-           }
+                            is ApiWeatherData.Loading -> {
+                                // Show loading indicator
+                            }
+
+                        }
+                    }
+                }
+            }
+
       }
     }
 

@@ -8,6 +8,7 @@ import com.example.temptrack.data.model.DailyItem
 import com.example.temptrack.data.model.DailyWeather
 import com.example.temptrack.data.model.HourlyItem
 import com.example.temptrack.data.model.HourlyWeather
+import com.example.temptrack.data.model.WeatherItem
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -51,7 +52,8 @@ fun convertToHourlyWeather(hourlyWeather: List<HourlyItem>): List<HourlyWeather>
         val hour = calendar.get(Calendar.HOUR)
         val amPm = if (calendar.get(Calendar.AM_PM) == Calendar.AM) "AM" else "PM"
         val temperature = hourlyItem.temp
-        hourlyWeatherList.add(HourlyWeather(hour, amPm, temperature))
+        val weatherItems = hourlyItem.weather
+        hourlyWeatherList.add(HourlyWeather(hour, amPm, temperature,weatherItems))
     }
 
     return hourlyWeatherList
@@ -65,8 +67,8 @@ fun convertToDailyWeather(dailyItems: List<DailyItem>): List<DailyWeather> {
         val maxTemperature = dailyItem.temp.max
         val minTemperature = dailyItem.temp.min
         val weatherDescription = dailyItem.weather.firstOrNull()?.description ?: ""
-
-        val dailyWeather = DailyWeather(dayOfWeek, date, maxTemperature, minTemperature, weatherDescription)
+        val weatherItems = dailyItem.weather
+        val dailyWeather = DailyWeather(dayOfWeek, date, maxTemperature, minTemperature, weatherDescription, weatherItems)
         dailyWeatherList.add(dailyWeather)
     }
 

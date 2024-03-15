@@ -32,22 +32,6 @@ class SettingsViewModel(private val dataStorePreferences: SettingDataStorePrefer
         viewModelScope.coroutineContext.cancel()
     }
 
-    fun saveData() {
-        viewModelScope.launch {
-            // Collect the latest values from the flows
-            val location = dataStorePreferences.locationPrefFlow.firstOrNull() ?: return@launch
-            val temp = dataStorePreferences.tempPrefFlow.firstOrNull() ?: return@launch
-            val language = dataStorePreferences.languagePrefFlow.firstOrNull() ?: return@launch
 
-            // Save location preference
-            dataStorePreferences.setLocationRadioGroupPreference(location)
-
-            // Save temperature preference
-           // dataStorePreferences.setTempPref(temp)
-
-            // Save language preference
-            dataStorePreferences.setLangPreference(language)
-        }
-    }
 
 }

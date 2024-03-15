@@ -106,6 +106,5 @@ class SettingsFragment : Fragment() {
         super.onDestroyView()
 
         viewModel.cancelCoroutines()
-        viewModel.saveData()
     }
 }

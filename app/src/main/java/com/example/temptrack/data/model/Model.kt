@@ -100,8 +100,9 @@ data class DailyWeather(
     val date: String,
     val maxTemperature: Double,
     val minTemperature: Double,
-    val weatherDescription: String
-)
+    val weatherDescription: String,
+    val weather: List<WeatherItem>
+    )
 data class Alert(
     val sender_name: String,
     val event: String,
@@ -112,5 +113,6 @@ data class Alert(
 data class HourlyWeather(
     val hour: Int,
     val amPm: String,
-    val temperature: Double
-)
+    val temperature: Double,
+    val weather: List<WeatherItem>
+    )

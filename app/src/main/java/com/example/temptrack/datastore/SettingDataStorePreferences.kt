@@ -53,35 +53,13 @@ class SettingDataStorePreferences(private val context: Context) {
         _tempPrefFlow.value = tempPref.name
     }
 
-    /* suspend fun setLocationRadioGroupPreference(selectedLocation: ENUM_LOCATION) {
-         context.dataStore.edit { preferences ->
-             preferences[locationPrefKey] = selectedLocation.name
-             _locationPrefFlow.value = selectedLocation
-         }
-     }*/
-
     fun getLocationRadioGroupPreference(): Flow<ENUM_LOCATION> {
         return _locationPrefFlow
     }
 
-  /*  suspend fun setLangPreference(selectLanguage: String) {
-        context.dataStore.edit { preferences ->
-            preferences[languagePrefKey] = selectLanguage
-            _languagePrefFlow.value = selectLanguage
-        }
-    }*/
-
     fun getLangPreferences(): Flow<String> {
         return _languagePrefFlow
     }
-
-  /*  suspend fun setTempPref(tempPref: ENUM_TEMP_PREF) {
-        context.dataStore.edit { preferences ->
-            preferences[tempPrefKey] = tempPref.name
-            _tempPrefFlow.value = tempPref.name
-        }
-    }*/
-
     fun getTempPref(): Flow<ENUM_TEMP_PREF?> {
         return _tempPrefFlow.map { tempPref ->
             try {

@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.temptrack.data.model.HourlyWeather
 import com.example.temptrack.databinding.DayItemBinding
+import com.example.temptrack.util.getImageIcon
 
 class HourlyWeatherAdapter(private val clickListener: (HourlyWeather) -> Unit) :
     ListAdapter<HourlyWeather, HourlyWeatherAdapter.HourlyWeatherViewHolder>(HourlyWeatherDiffCallback()) {
@@ -32,6 +33,8 @@ class HourlyWeatherAdapter(private val clickListener: (HourlyWeather) -> Unit) :
             binding.root.setOnClickListener { clickListener(item) }
             binding.tvDayTemp.text = item.temperature.toString()
             binding.dayHour.text=item.hour.toString()
+            val icon = getImageIcon(item.weather.firstOrNull()?.icon ?: "")
+            binding.dayIcon.setImageResource(icon)
             binding.executePendingBindings()
         }
     }

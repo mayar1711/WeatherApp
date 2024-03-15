@@ -29,11 +29,13 @@ import com.example.temptrack.datastore.SettingDataStorePreferences
 import com.example.temptrack.location.obtainLocation
 import com.example.temptrack.ui.home.viewmodel.HomeViewModel
 import com.example.temptrack.ui.home.viewmodel.HomeViewModelFactory
+import com.example.temptrack.ui.map.MapsActivity
 import com.example.temptrack.util.ResultCallBack
 import com.example.temptrack.util.convertToDailyWeather
 import com.example.temptrack.util.convertToHourlyWeather
 import com.example.temptrack.util.getImageIcon
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
@@ -80,17 +82,18 @@ class HomeFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                val tempPref = settingSharedPreferences.getTempPref().first()
-                val langPref = settingSharedPreferences.getLangPreferences().first()
-                val locationPref = settingSharedPreferences.getLocationRadioGroupPreference().first()
+                val tempPref = settingSharedPreferences.tempPrefFlow.firstOrNull()
+                val langPref = settingSharedPreferences.languagePrefFlow.firstOrNull()
+                val locationPref = settingSharedPreferences.locationPrefFlow.first()
 
                 unit = when (tempPref) {
-                    ENUM_TEMP_PREF.CELSIUS -> "metric"
-                    ENUM_TEMP_PREF.FAHRENHEIT -> "imperial"
-                    ENUM_TEMP_PREF.KELVIN -> "standard"
-                    else -> "metric "
+                    ENUM_TEMP_PREF.CELSIUS.toString() -> "metric"
+                    ENUM_TEMP_PREF.FAHRENHEIT.toString()-> "imperial"
+                    ENUM_TEMP_PREF.KELVIN.toString()-> "standard"
+                    else -> "metric"
                 }
                 Log.d("HomeFragment", "onViewCreated: $unit")
+
                 language = when (langPref) {
                     SettingDataStorePreferences.ENGLISH -> "en"
                     SettingDataStorePreferences.ARABIC -> "ar"
@@ -101,6 +104,12 @@ class HomeFragment : Fragment() {
                 when (locationPref) {
                     ENUM_LOCATION.MAP -> {
                         Log.d("HomeFragment", "onViewCreated: MAP")
+                        val intent = Intent(requireContext(), MapsActivity::class.java)
+                        val bundle = Bundle().apply {
+                            putString("fragment_name", "HomeFragment")
+                        }
+                        intent.putExtras(bundle)
+                        startActivity(intent)
                     }
                     ENUM_LOCATION.GPS -> {
                         viewModel.latitude.collect { latitude ->
@@ -237,11 +246,10 @@ class HomeFragment : Fragment() {
     }
     fun checkUnit(unit:String):String{
         return when(unit){
-             "metric"->"m/s"
-             "imperial"->"mm/h"
+            "metric"->"m/s"
+            "imperial"->"mm/h"
             "standard"->"m/s"
             else -> "m/s"
         }
     }
 }
-

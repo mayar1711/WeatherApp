@@ -47,8 +47,14 @@ class FavoriteFragment : Fragment() {
         )
         binding.recyclerFavorite.adapter=adapter
         binding.fabAdd.setOnClickListener {
-            startActivity(Intent(requireContext(), MapsActivity::class.java))
+            val intent = Intent(requireContext(), MapsActivity::class.java)
+            val bundle = Bundle().apply {
+                putString("fragment_name", "FavoriteFragment")
+            }
+            intent.putExtras(bundle)
+            startActivity(intent)
         }
+
         return binding.root
     }
 
