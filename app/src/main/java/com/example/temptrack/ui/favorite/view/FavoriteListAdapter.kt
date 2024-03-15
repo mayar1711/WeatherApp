@@ -39,7 +39,7 @@ class FavoriteListAdapter(private val clickListener: (TempData) -> Unit, private
 
     class FavoriteItemDiffCallback : DiffUtil.ItemCallback<TempData>() {
         override fun areItemsTheSame(oldItem: TempData, newItem: TempData): Boolean {
-            return oldItem.roomId == newItem.roomId
+            return oldItem.city == newItem.city
         }
 
         override fun areContentsTheSame(oldItem: TempData, newItem: TempData): Boolean {

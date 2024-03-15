@@ -24,42 +24,6 @@ class WeatherLocationManager private constructor(private var application: Applic
         LocationServices.getFusedLocationProviderClient(application)
     }
 
-    @SuppressLint("MissingPermission")
-    override fun requestLocationByGPS() {
-        val tokenSource = CancellationTokenSource()
-        val token = tokenSource.token
-        mFusedLocationProviderClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY,token).addOnSuccessListener {
-            val isEmitted =
-                _location.tryEmit(LocationStatus.Success(LatLng(it.latitude, it.longitude)))
-            Log.d("TAG", "onLocationResult: $isEmitted")
-        }
-    }
-    @SuppressLint("MissingPermission")
-    override fun requestLocationByGPS(callback: (LatLng) -> Unit) {
-        val tokenSource = CancellationTokenSource()
-        val token = tokenSource.token
-        mFusedLocationProviderClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY,token).addOnSuccessListener {
-            callback(LatLng(it.latitude, it.longitude))
-        }
-    }
-
-    override fun requestLocationSavedFromMap() {
-
-    }
-
-    override fun removeLocationUpdate(locationCallback: LocationCallback) {
-        mFusedLocationProviderClient.removeLocationUpdates(
-            locationCallback
-        )
-    }
-
-
-    override fun isLocationEnabled(): Boolean {
-        val weatherLocationManager: LocationManager =
-            application.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        return weatherLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-    }
-
     companion object {
         private lateinit var instance: WeatherLocationManager
         fun getInstance(application: Application): WeatherLocationManager {
@@ -71,4 +35,20 @@ class WeatherLocationManager private constructor(private var application: Applic
             }
         }
     }
+    @SuppressLint("MissingPermission")
+    override fun requestLocationByGPS() {
+        val tokenSource = CancellationTokenSource()
+        val token = tokenSource.token
+        mFusedLocationProviderClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY,token).addOnSuccessListener {
+            val isEmitted =
+                _location.tryEmit(LocationStatus.Success(LatLng(it.latitude, it.longitude)))
+            Log.d("TAG", "onLocationResult: $isEmitted")
+        }
+    }
+
+    override fun requestLocationSavedFromMap() {
+
+    }
+
+
 }

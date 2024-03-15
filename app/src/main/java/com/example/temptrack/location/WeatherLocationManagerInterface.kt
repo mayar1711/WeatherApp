@@ -10,8 +10,5 @@ interface WeatherLocationManagerInterface {
 
     @SuppressLint("MissingPermission")
     fun requestLocationByGPS()
-    fun isLocationEnabled(): Boolean
     fun requestLocationSavedFromMap()
-    fun requestLocationByGPS(callback: (LatLng) -> Unit)
-    fun removeLocationUpdate(locationCallback: LocationCallback)
 }

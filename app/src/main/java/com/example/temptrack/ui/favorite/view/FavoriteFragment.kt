@@ -4,19 +4,15 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.get
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.temptrack.R
-import com.example.temptrack.data.database.DataBaseResult
 import com.example.temptrack.data.database.DatabaseClient
 import com.example.temptrack.data.database.FavoriteLocalDataSourceImo
 import com.example.temptrack.data.model.TempData
@@ -24,10 +20,10 @@ import com.example.temptrack.data.network.RetrofitClient
 import com.example.temptrack.data.network.datasource.WeatherRemoteDataSourceImpl
 import com.example.temptrack.data.repositry.WeatherRepositoryImpl
 import com.example.temptrack.databinding.FragmentFavoriteBinding
-import com.example.temptrack.databinding.FragmentHomeBinding
 import com.example.temptrack.ui.favorite.viewmodel.FavoriteViewModel
 import com.example.temptrack.ui.favorite.viewmodel.FavoriteViewModelFactory
 import com.example.temptrack.ui.map.MapsActivity
+import com.example.temptrack.util.ResultCallBack
 import kotlinx.coroutines.launch
 
 class FavoriteFragment : Fragment() {
@@ -51,8 +47,14 @@ class FavoriteFragment : Fragment() {
         )
         binding.recyclerFavorite.adapter=adapter
         binding.fabAdd.setOnClickListener {
-            startActivity(Intent(requireContext(), MapsActivity::class.java))
+            val intent = Intent(requireContext(), MapsActivity::class.java)
+            val bundle = Bundle().apply {
+                putString("fragment_name", "FavoriteFragment")
+            }
+            intent.putExtras(bundle)
+            startActivity(intent)
         }
+
         return binding.root
     }
 
@@ -65,14 +67,16 @@ class FavoriteFragment : Fragment() {
 
         viewModel.getFavoriteList()
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.favoriteList.collect{favoriteData->
-                when(favoriteData){
-                    is DataBaseResult.Success->{
-                        adapter.submitList(favoriteData.forecast)
-                        Log.i("TAG", "onViewCreated: ${favoriteData.forecast}")
+            viewModel.favoriteList.collect { result ->
+                when (result) {
+                    is ResultCallBack.Success -> {
+                        adapter.submitList(result.data)
+                        Log.i("FavoriteFragment", "onViewCreated: ${result.data}")
                     }
-
-                    else -> {
+                    is ResultCallBack.Error -> {
+                        Log.e("FavoriteFragment", "Error: ${result.message}")
+                    }
+                    ResultCallBack.Loading -> {
 
                     }
                 }

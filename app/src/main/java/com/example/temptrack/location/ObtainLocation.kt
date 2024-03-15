@@ -21,7 +21,7 @@ fun obtainLocation(context: Context, settingSharedPreferences: SettingDataStoreP
             val longitude = location.longitude
             val locationString = "$latitude,$longitude"
             CoroutineScope(Dispatchers.IO).launch {
-                settingSharedPreferences.setLocationPref(locationString)
+              //  settingSharedPreferences.setLocationPref(locationString)
             }
             locationManager.removeUpdates(this)
         }

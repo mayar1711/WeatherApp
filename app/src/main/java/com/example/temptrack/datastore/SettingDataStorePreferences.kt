@@ -2,100 +2,78 @@ package com.example.temptrack.datastore
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
-
 
 private const val SETTING_SHARED_PREFERENCES = "SETTING_SHARED_PREFERENCES"
 private const val LOCATION_PREFERENCES = "LOCATION_PREFERENCES"
 private const val TEMP_PREFERENCES = "TEMP_PREFERENCES"
-private const val WIND_SPEED_PREFERENCES = "WIND_SPEED_PREFERENCES"
-private const val MAP_LAT_PREFERENCES = "MAP_LAT_PREFERENCES"
-private const val MAP_LONG_PREFERENCES = "MAP_LONG_PREFERENCES"
+private const val LANGUAGE_PREFERENCES = "LANGUAGE_PREFERENCES"
+
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = SETTING_SHARED_PREFERENCES)
 
 class SettingDataStorePreferences(private val context: Context) {
 
     private val locationPrefKey = stringPreferencesKey(LOCATION_PREFERENCES)
     private val tempPrefKey = stringPreferencesKey(TEMP_PREFERENCES)
-    private val windSpeedPrefKey = stringPreferencesKey(WIND_SPEED_PREFERENCES)
-    private val mapLatPrefKey = floatPreferencesKey(MAP_LAT_PREFERENCES)
-    private val mapLongPrefKey = floatPreferencesKey(MAP_LONG_PREFERENCES)
+    private val languagePrefKey = stringPreferencesKey(LANGUAGE_PREFERENCES)
+
+    private val _locationPrefFlow = MutableStateFlow(ENUM_LOCATION.GPS)
+    private val _tempPrefFlow = MutableStateFlow("")
+    private val _languagePrefFlow = MutableStateFlow("")
+
+    val locationPrefFlow: Flow<ENUM_LOCATION> = _locationPrefFlow
+    val tempPrefFlow: Flow<String> = _tempPrefFlow
+    val languagePrefFlow: Flow<String> = _languagePrefFlow
 
 
-    suspend fun setLocationPref(locationPref: String) {
+    suspend fun setLocationRadioGroupPreference(selectedLocation: ENUM_LOCATION) {
         context.dataStore.edit { preferences ->
-            preferences[locationPrefKey] = locationPref
+            preferences[locationPrefKey] = selectedLocation.name
         }
+        _locationPrefFlow.value = selectedLocation
     }
 
-
-    fun getLocationPref(): Flow<String?> {
-        return context.dataStore.data.map { preferences ->
-            preferences[locationPrefKey]
-        }
-    }
-
-    suspend fun setTempPref(tempPref: String) {
+    suspend fun setLangPreference(selectLanguage: String) {
         context.dataStore.edit { preferences ->
-            preferences[tempPrefKey] = tempPref
+            preferences[languagePrefKey] = selectLanguage
         }
+        _languagePrefFlow.value = selectLanguage
     }
 
-    fun getTempPref(): Flow<String?> {
-        return context.dataStore.data.map { preferences ->
-            preferences[tempPrefKey]
-        }
-    }
-
-    suspend fun setWindSpeedPref(windSpeedPref: String) {
+    suspend fun setTempPref(tempPref: ENUM_TEMP_PREF) {
         context.dataStore.edit { preferences ->
-            preferences[windSpeedPrefKey] = windSpeedPref
+            preferences[tempPrefKey] = tempPref.name
         }
+        _tempPrefFlow.value = tempPref.name
     }
 
-    fun getWindSpeedPref(): Flow<String?> {
-        return context.dataStore.data.map { preferences ->
-            preferences[windSpeedPrefKey]
-        }
+    fun getLocationRadioGroupPreference(): Flow<ENUM_LOCATION> {
+        return _locationPrefFlow
     }
 
-    suspend fun setMapPref(lat: Float, long: Float) {
-        context.dataStore.edit { preferences ->
-            preferences[mapLatPrefKey] = lat
-            preferences[mapLongPrefKey] = long
-        }
+    fun getLangPreferences(): Flow<String> {
+        return _languagePrefFlow
     }
-
-    fun getMapPref(): Flow<Pair<Float, Float>?> {
-        return context.dataStore.data.map { preferences ->
-            val lat = preferences[mapLatPrefKey]
-            val long = preferences[mapLongPrefKey]
-            if (lat != null && long != null) {
-                Pair(lat, long)
-            } else {
+    fun getTempPref(): Flow<ENUM_TEMP_PREF?> {
+        return _tempPrefFlow.map { tempPref ->
+            try {
+                ENUM_TEMP_PREF.valueOf(tempPref)
+            } catch (e: IllegalArgumentException) {
+                Log.i("TAG", "getTempPref: $e")
                 null
             }
         }
     }
 
-
-
     companion object {
-        const val GPS = "GPS"
-        const val MAP = "MAP"
-        const val METER_PER_SECOND = "METER_PER_SECOND"
-        const val MILE_PER_HOUR = "MILE_PER_HOUR"
-        const val CELSIUS = "CELSIUS"
-        const val KELVIN = "KELVIN"
-        const val FAHRENHEIT = "FAHRENHEIT"
-        const val SET_LOCATION_AS_MAIN_LOCATION = "SET_LOCATION_AS_MAIN_LOCATION"
-        const val ADD_T0_FAV_IN_THIS_LOCATION = "ADD_T0_FAV_IN_THIS_LOCATION"
-        const val ADD_T0_ALERTS_IN_THIS_LOCATION = "ADD_T0_ALERTS_IN_THIS_LOCATION"
-        const val NAVIGATE_TO_MAP = "NAVIGATE_TO_MAP"
+        const val ENGLISH = "ENGLISH"
+        const val ARABIC = "ARABIC"
 
         @SuppressLint("StaticFieldLeak")
         private lateinit var instance: SettingDataStorePreferences
@@ -107,4 +85,15 @@ class SettingDataStorePreferences(private val context: Context) {
             return instance
         }
     }
+}
+
+enum class ENUM_LOCATION {
+    MAP,
+    GPS
+}
+
+enum class ENUM_TEMP_PREF {
+    CELSIUS,
+    FAHRENHEIT,
+    KELVIN
 }
