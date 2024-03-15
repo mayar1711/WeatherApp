@@ -13,53 +13,48 @@ import com.example.temptrack.data.repositry.WeatherRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
-class FakeRepository : WeatherRepository {
-
-    private val fakeWeatherForecastResponse: WeatherForecastResponse = createFakeWeatherForecastResponse()
-    private val favoriteList = mutableListOf<TempData>()
-    private val alertList = mutableListOf<RoomAlert>()
-
+class FakeWeatherRepository(private var fakeWeatherData: WeatherForecastResponse) : WeatherRepository {
+    private val fakeFavorites: MutableList<TempData> = mutableListOf()
+    private val fakeAlerts: MutableList<RoomAlert> = mutableListOf()
     override fun getWeatherForecast(latitude: Double, longitude: Double, unit: String, language: String): Flow<WeatherForecastResponse> {
         return flow {
-            emit(fakeWeatherForecastResponse)
+            emit(fakeWeatherData)
         }
     }
 
     override suspend fun insertFavorite(favorite: TempData) {
-        favoriteList.add(favorite)
+        fakeFavorites.add(favorite)
     }
 
     override suspend fun deleteFavorite(favorite: TempData) {
-        favoriteList.remove(favorite)
+        fakeFavorites.remove(favorite)
     }
 
     override suspend fun updateFavorite(favorite: TempData) {
-        val index = favoriteList.indexOfFirst { it.city == favorite.city }
-        if (index != -1) {
-            favoriteList[index] = favorite
-        }
+        // No need to implement for fake repository
     }
 
     override fun getAllFavorite(): Flow<List<TempData>> {
         return flow {
-            emit(favoriteList)
+            emit(fakeFavorites.toList())
         }
     }
 
     override fun getAllAlerts(): Flow<List<RoomAlert>> {
         return flow {
-            emit(alertList)
+            emit(fakeAlerts.toList())
         }
     }
 
     override suspend fun insertAlert(alert: RoomAlert) {
-        alertList.add(alert)
+        fakeAlerts.add(alert)
     }
 
     override suspend fun deleteAlert(alert: RoomAlert) {
-        alertList.remove(alert)
+        fakeAlerts.remove(alert)
     }
-
+}
+   val response= createFakeWeatherForecastResponse()
     private fun createFakeWeatherForecastResponse(): WeatherForecastResponse {
 
         val currentWeather = Current(
@@ -121,4 +116,4 @@ class FakeRepository : WeatherRepository {
             alerts = listOf(alert)
         )
     }
-}
+

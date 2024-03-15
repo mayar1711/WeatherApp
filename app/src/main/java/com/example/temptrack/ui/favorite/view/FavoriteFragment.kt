@@ -62,7 +62,7 @@ class FavoriteFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val repository = WeatherRepositoryImpl.getInstance(WeatherRemoteDataSourceImpl.getInstance(RetrofitClient.weatherApiService),
             FavoriteLocalDataSourceImo.getInstance(DatabaseClient.getInstance(requireContext()).favoriteDao()))
-        val factory=FavoriteViewModelFactory(requireActivity().application,repository)
+        val factory=FavoriteViewModelFactory(repository)
         viewModel= ViewModelProvider(this,factory)[FavoriteViewModel::class.java]
 
         viewModel.getFavoriteList()

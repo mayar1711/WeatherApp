@@ -144,8 +144,8 @@ dependencies {
     testImplementation("org.robolectric:robolectric:4.8")
 
 // InstantTaskExecutorRule
-    testImplementation("androidx.arch.core:core-testing:2.1.0")
-    androidTestImplementation("androidx.arch.core:core-testing:2.1.0")
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
+    androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
 
 // kotlinx-coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion")
@@ -173,5 +173,11 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:$espressoVersion")
 
     androidTestImplementation ("androidx.arch.core:core-testing:$archTestingVersion")
+/*
+
+    testImplementation(" 'net.bytebuddy:byte-buddy:1.12.0'")
+    testImplementation ("org.mockito:mockito-core:3.12.4")
+*/
+
 
 }
