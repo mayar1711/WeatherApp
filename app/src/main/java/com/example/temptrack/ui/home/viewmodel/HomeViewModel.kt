@@ -10,6 +10,7 @@ import com.example.temptrack.location.LocationStatus
 import com.example.temptrack.location.WeatherLocationManager
 import com.example.temptrack.location.WeatherLocationManagerInterface
 import com.example.temptrack.util.ResultCallBack
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -22,6 +23,12 @@ class HomeViewModel(application: Application, private val repository: WeatherRep
     private val locationManager: WeatherLocationManagerInterface = WeatherLocationManager.getInstance(application)
     private val _location = MutableStateFlow<LocationStatus>(LocationStatus.Loading)
     val location: StateFlow<LocationStatus> = _location
+
+    private val _latitude = MutableStateFlow(0.0)
+    val latitude: StateFlow<Double> = _latitude
+
+    private val _longitude = MutableStateFlow(0.0)
+    val longitude: StateFlow<Double> = _longitude
 
     fun fetchWeatherForecast(latitude: Double, longitude: Double, unit: String, language: String) {
         viewModelScope.launch {
@@ -41,6 +48,8 @@ class HomeViewModel(application: Application, private val repository: WeatherRep
             locationManager.location.collect { locationStatus ->
                 when (locationStatus) {
                     is LocationStatus.Success -> {
+                        _latitude.value = locationStatus.latLng.latitude
+                        _longitude.value = locationStatus.latLng.longitude
                         Log.d("HomeViewModel", "Received GPS location: ${locationStatus.latLng}")
                     }
                     is LocationStatus.Failure -> {
@@ -53,4 +62,8 @@ class HomeViewModel(application: Application, private val repository: WeatherRep
             }
         }
     }
+    fun cancelCoroutines() {
+        viewModelScope.coroutineContext.cancel()
+    }
+
 }

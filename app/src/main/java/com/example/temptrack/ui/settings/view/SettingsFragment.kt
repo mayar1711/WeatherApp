@@ -9,6 +9,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.temptrack.R
 import com.example.temptrack.databinding.FragmentSettingsBinding
+import com.example.temptrack.datastore.ENUM_LOCATION
+import com.example.temptrack.datastore.ENUM_TEMP_PREF
 import com.example.temptrack.datastore.SettingDataStorePreferences
 import com.example.temptrack.ui.settings.viewmodel.SettingsViewModel
 import com.example.temptrack.ui.settings.viewmodel.SettingsViewModelFactory
@@ -43,19 +45,19 @@ class SettingsFragment : Fragment() {
             settingDataStorePreferences.getLocationRadioGroupPreference().collect { location ->
                 Log.d("SettingsFragment", "Location preference: $location")
                 when (location) {
-                    SettingDataStorePreferences.MAP -> binding.location.check(R.id.rd_map)
-                    SettingDataStorePreferences.GPS -> binding.location.check(R.id.switch_notification)
+                    ENUM_LOCATION.MAP -> binding.location.check(R.id.rd_map)
+                    ENUM_LOCATION.GPS -> binding.location.check(R.id.rd_gps)
                 }
             }
         }
 
-        // Collect temperature preference
         CoroutineScope(Dispatchers.Main).launch {
             settingDataStorePreferences.getTempPref().collect { temp ->
                 when (temp) {
-                    SettingDataStorePreferences.KELVIN -> binding.rgTemp.check(R.id.rd_kelvin)
-                    SettingDataStorePreferences.CELSIUS -> binding.rgTemp.check(R.id.rd_celsius)
-                    SettingDataStorePreferences.FAHRENHEIT -> binding.rgTemp.check(R.id.rd_fahrenheit)
+                    ENUM_TEMP_PREF.KELVIN -> binding.rgTemp.check(R.id.rd_kelvin)
+                    ENUM_TEMP_PREF.CELSIUS -> binding.rgTemp.check(R.id.rd_celsius)
+                    ENUM_TEMP_PREF.FAHRENHEIT -> binding.rgTemp.check(R.id.rd_fahrenheit)
+                    null ->   binding.rgTemp.check(R.id.rd_celsius)
                 }
             }
         }
@@ -66,16 +68,16 @@ class SettingsFragment : Fragment() {
                 when (language) {
                     SettingDataStorePreferences.ENGLISH -> binding.language.check(R.id.rd_english)
                     SettingDataStorePreferences.ARABIC -> binding.language.check(R.id.rd_arabic)
+                    null-> binding.language.check(R.id.rd_english)
                 }
             }
         }
 
-        // Set listeners
         binding.location.setOnCheckedChangeListener { _, checkedId ->
             val selectedLocation = when (checkedId) {
-                R.id.rd_map -> SettingDataStorePreferences.MAP
-                R.id.switch_notification -> SettingDataStorePreferences.GPS
-                else -> SettingDataStorePreferences.GPS
+                R.id.rd_map -> ENUM_LOCATION.MAP
+                R.id.rd_gps -> ENUM_LOCATION.GPS
+                else -> return@setOnCheckedChangeListener
             }
             viewModel.setLocationPreference(selectedLocation)
         }
@@ -84,19 +86,26 @@ class SettingsFragment : Fragment() {
             val selectLanguage = when (checkedId) {
                 R.id.rd_arabic -> SettingDataStorePreferences.ARABIC
                 R.id.rd_english -> SettingDataStorePreferences.ENGLISH
-                else -> SettingDataStorePreferences.ENGLISH
+                else -> return@setOnCheckedChangeListener
             }
             viewModel.setLangPreference(selectLanguage)
         }
 
         binding.rgTemp.setOnCheckedChangeListener { _, checkedId ->
             val selectTemp = when (checkedId) {
-                R.id.rd_fahrenheit -> SettingDataStorePreferences.FAHRENHEIT
-                R.id.rd_celsius -> SettingDataStorePreferences.CELSIUS
-                R.id.rd_kelvin -> SettingDataStorePreferences.KELVIN
-                else -> SettingDataStorePreferences.CELSIUS
+                R.id.rd_fahrenheit -> ENUM_TEMP_PREF.FAHRENHEIT
+                R.id.rd_celsius -> ENUM_TEMP_PREF.CELSIUS
+                R.id.rd_kelvin -> ENUM_TEMP_PREF.KELVIN
+                else -> return@setOnCheckedChangeListener
             }
             viewModel.setTempPreference(selectTemp)
         }
+
+    }
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        viewModel.cancelCoroutines()
+        viewModel.saveData()
     }
 }
