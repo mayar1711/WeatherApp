@@ -2,6 +2,7 @@ package com.example.temptrack.ui.settings.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.temptrack.datastore.ENUM_LANGUAGE
 import com.example.temptrack.datastore.ENUM_LOCATION
 import com.example.temptrack.datastore.ENUM_TEMP_PREF
 import com.example.temptrack.datastore.SettingDataStorePreferences
@@ -23,7 +24,7 @@ class SettingsViewModel(private val dataStorePreferences: SettingDataStorePrefer
         }
     }
 
-    fun setLangPreference(selectedLang: String){
+    fun setLangPreference(selectedLang: ENUM_LANGUAGE){
         viewModelScope.launch {
             dataStorePreferences.setLangPreference(selectedLang)
         }

@@ -1,7 +1,6 @@
 package com.example.temptrack.ui.settings.view
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.temptrack.R
 import com.example.temptrack.databinding.FragmentSettingsBinding
+import com.example.temptrack.datastore.ENUM_LANGUAGE
 import com.example.temptrack.datastore.ENUM_LOCATION
 import com.example.temptrack.datastore.ENUM_TEMP_PREF
 import com.example.temptrack.datastore.SettingDataStorePreferences
@@ -24,6 +24,7 @@ class SettingsFragment : Fragment() {
     private lateinit var viewModelFactory: SettingsViewModelFactory
     private lateinit var binding: FragmentSettingsBinding
 
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -34,16 +35,14 @@ class SettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         val settingDataStorePreferences = SettingDataStorePreferences.getInstance(requireContext())
         viewModelFactory = SettingsViewModelFactory(settingDataStorePreferences)
         viewModel = ViewModelProvider(this, viewModelFactory)[SettingsViewModel::class.java]
         binding.lifecycleOwner = viewLifecycleOwner
 
-        // Collect location preference
+
         CoroutineScope(Dispatchers.Main).launch {
-            settingDataStorePreferences.getLocationRadioGroupPreference().collect { location ->
-                Log.d("SettingsFragment", "Location preference: $location")
+            settingDataStorePreferences.getLocationPreference().collect { location ->
                 when (location) {
                     ENUM_LOCATION.MAP -> binding.location.check(R.id.rd_map)
                     ENUM_LOCATION.GPS -> binding.location.check(R.id.rd_gps)
@@ -52,22 +51,21 @@ class SettingsFragment : Fragment() {
         }
 
         CoroutineScope(Dispatchers.Main).launch {
-            settingDataStorePreferences.getTempPref().collect { temp ->
+            settingDataStorePreferences.getTempPreference().collect(){ temp ->
                 when (temp) {
                     ENUM_TEMP_PREF.KELVIN -> binding.rgTemp.check(R.id.rd_kelvin)
-                    ENUM_TEMP_PREF.CELSIUS -> binding.rgTemp.check(R.id.rd_celsius)
+                    ENUM_TEMP_PREF.CELSIUS-> binding.rgTemp.check(R.id.rd_celsius)
                     ENUM_TEMP_PREF.FAHRENHEIT -> binding.rgTemp.check(R.id.rd_fahrenheit)
                     null ->   binding.rgTemp.check(R.id.rd_celsius)
                 }
             }
         }
 
-        // Collect language preference
         CoroutineScope(Dispatchers.Main).launch {
-            settingDataStorePreferences.getLangPreferences().collect { language ->
+            settingDataStorePreferences.getLangPreference().collect { language ->
                 when (language) {
-                    SettingDataStorePreferences.ENGLISH -> binding.language.check(R.id.rd_english)
-                    SettingDataStorePreferences.ARABIC -> binding.language.check(R.id.rd_arabic)
+                    ENUM_LANGUAGE.ENGLISH -> binding.language.check(R.id.rd_english)
+                    ENUM_LANGUAGE.ARABIC -> binding.language.check(R.id.rd_arabic)
                     null-> binding.language.check(R.id.rd_english)
                 }
             }
@@ -84,8 +82,8 @@ class SettingsFragment : Fragment() {
 
         binding.language.setOnCheckedChangeListener { _, checkedId ->
             val selectLanguage = when (checkedId) {
-                R.id.rd_arabic -> SettingDataStorePreferences.ARABIC
-                R.id.rd_english -> SettingDataStorePreferences.ENGLISH
+                R.id.rd_arabic -> ENUM_LANGUAGE.ARABIC
+                R.id.rd_english -> ENUM_LANGUAGE.ENGLISH
                 else -> return@setOnCheckedChangeListener
             }
             viewModel.setLangPreference(selectLanguage)
@@ -107,4 +105,6 @@ class SettingsFragment : Fragment() {
 
         viewModel.cancelCoroutines()
     }
+
+
 }

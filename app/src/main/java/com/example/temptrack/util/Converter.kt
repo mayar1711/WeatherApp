@@ -3,6 +3,7 @@ package com.example.temptrack.util
 import android.content.Context
 import android.location.Address
 import android.location.Geocoder
+import android.net.ConnectivityManager
 import com.example.temptrack.R
 import com.example.temptrack.data.model.DailyItem
 import com.example.temptrack.data.model.DailyWeather
@@ -21,6 +22,12 @@ fun getDayFormat(dt: Long, lang: String): String? {
     val calendar = Calendar.getInstance()
     calendar.time = date
     return calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale(lang))
+}
+fun isConnected(context: Context): Boolean {
+    val connectivityManager =
+        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    return connectivityManager.activeNetworkInfo != null && connectivityManager.activeNetworkInfo!!
+        .isConnected
 }
 fun getAddress(context: Context, lat: Double, lon: Double):String{
     try {

@@ -2,6 +2,7 @@ package com.example.temptrack.languages
 
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
+import java.util.Locale
 
 fun changeLanguageLocaleTo(lan: String) {
     val appLocale: LocaleListCompat = LocaleListCompat.forLanguageTags(lan)
@@ -9,5 +10,7 @@ fun changeLanguageLocaleTo(lan: String) {
 }
 
 fun getLanguageLocale(): String {
-    return AppCompatDelegate.getApplicationLocales().toLanguageTags()
+    val defaultLocale = Locale.getDefault()
+
+    return defaultLocale.language
 }
