@@ -30,7 +30,7 @@
                 android:id="@+id/tv_temp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="152dp"
+                android:layout_marginStart="130dp"
                 android:layout_marginTop="16dp"
                 android:fontFamily="@font/autour_one"
                 android:text="30"

@@ -32,6 +32,7 @@ import com.example.temptrack.datastore.ENUM_LANGUAGE
 import com.example.temptrack.datastore.ENUM_LOCATION
 import com.example.temptrack.datastore.ENUM_TEMP_PREF
 import com.example.temptrack.datastore.SettingDataStorePreferences
+import com.example.temptrack.location.LocationStatus
 import com.example.temptrack.ui.home.viewmodel.HomeViewModel
 import com.example.temptrack.ui.home.viewmodel.HomeViewModelFactory
 import com.example.temptrack.ui.map.MapsActivity
@@ -39,9 +40,15 @@ import com.example.temptrack.util.ResultCallBack
 import com.example.temptrack.util.convertToDailyWeather
 import com.example.temptrack.util.convertToHourlyWeather
 import com.example.temptrack.util.getImageIcon
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -133,24 +140,64 @@ class HomeFragment : Fragment() {
                         val geocoder=Geocoder(requireContext(),Locale.getDefault())
                         country= geocoder.getFromLocation(_latitude,_longitude,1)?.get(0)?.adminArea
                         Log.i("HomeFragment", "onViewCreated MAP: $_latitude, $_longitude")
-
+                        binding.tvCity.text=country
                     }
                     ENUM_LOCATION.GPS -> {
+                         val _location = MutableStateFlow<LocationStatus>(LocationStatus.Loading)
+                         val location = _location.asStateFlow()
+
+                         val mFusedLocationProviderClient: FusedLocationProviderClient by lazy {
+                            LocationServices.getFusedLocationProviderClient(requireActivity())
+                        }
+                        val tokenSource = CancellationTokenSource()
+                        val token = tokenSource.token
+                        if (ActivityCompat.checkSelfPermission(
+                                requireContext(),
+                                Manifest.permission.ACCESS_FINE_LOCATION
+                            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                                requireContext(),
+                                Manifest.permission.ACCESS_COARSE_LOCATION
+                            ) != PackageManager.PERMISSION_GRANTED
+                        ) {
+                            // TODO: Consider calling
+                            //    ActivityCompat#requestPermissions
+                            // here to request the missing permissions, and then overriding
+                            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                            //                                          int[] grantResults)
+                            // to handle the case where the user grants the permission. See the documentation
+                            // for ActivityCompat#requestPermissions for more details.
+                            return@launch
+                        }
+                        mFusedLocationProviderClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, token)
+                            .addOnSuccessListener { location ->
+                                val latLng = LatLng(location.latitude, location.longitude)
+                                val isEmitted = _location.tryEmit(LocationStatus.Success(latLng))
+                                Log.d("WeatherLocationManager", "Location request successful: $latLng, Emitted: $isEmitted")
+                                _latitude=location.latitude
+                                _longitude=location.longitude
+                                val geocoder=Geocoder(requireContext(),Locale.getDefault())
+                                country= geocoder.getFromLocation(_latitude,_longitude,1)?.get(0)?.adminArea
+                                Log.i("TAG", "onViewCreated: $country")
+                            }
+
+                            .addOnFailureListener { e ->
+                                Log.e("WeatherLocationManager", "Failed to receive GPS location: ${e.message}", e)
+                                _location.tryEmit(LocationStatus.Failure(e.message.toString()))
+                            }
                         binding.locationImage.visibility=View.GONE
 
-                        viewModel.latitude.collect { latitude ->
+                       /* viewModel.latitude.collect { latitude ->
                             _latitude = latitude
 
                         viewModel.longitude.collect { longitude ->
                             _longitude = longitude
-                            viewModel.fetchWeatherForecast(_latitude, _longitude, unit, language)
-                            Log.i("TAG", "onViewCreated: $_longitude ,$_latitude")
+                            Log.i("TAG", "onViewCreated:gps $_longitude ,$_latitude")
 
                         }
                     }
-                        val geocoder=Geocoder(requireContext(),Locale.getDefault())
+*/                       /* val geocoder=Geocoder(requireContext(),Locale.getDefault())
                         country= geocoder.getFromLocation(30.2794938,32.2792794,1)?.get(0)?.adminArea
-                        val countryName: String= getCountryName(requireContext(),30.2794938,32.2792794)
+                        val countryName: String= getCountryName(requireContext(),30.2794938,32.2792794)*/
                     }
 
                 }
@@ -158,7 +205,9 @@ class HomeFragment : Fragment() {
                 Log.e("HomeFragment", "Error fetching preferences: ${e.message}")
             }
         }
+
         viewModel.fetchWeatherForecast(_latitude, _longitude, unit, language)
+        Log.i("TAG", "onViewCreated: _longitude= $_longitude _latitude=,$_latitude")
 
         fetchDataFromFile()
         viewLifecycleOwner.lifecycleScope.launch {

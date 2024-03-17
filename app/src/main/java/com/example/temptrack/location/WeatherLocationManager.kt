@@ -35,17 +35,22 @@ class WeatherLocationManager private constructor(private var application: Applic
             }
         }
     }
+
     @SuppressLint("MissingPermission")
     override fun requestLocationByGPS() {
         val tokenSource = CancellationTokenSource()
         val token = tokenSource.token
-        mFusedLocationProviderClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY,token).addOnSuccessListener {
-            val isEmitted =
-                _location.tryEmit(LocationStatus.Success(LatLng(it.latitude, it.longitude)))
-            Log.d("TAG", "onLocationResult: $isEmitted")
-        }
+        mFusedLocationProviderClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, token)
+            .addOnSuccessListener { location ->
+                val latLng = LatLng(location.latitude, location.longitude)
+                val isEmitted = _location.tryEmit(LocationStatus.Success(latLng))
+                Log.d("WeatherLocationManager", "Location request successful: $latLng, Emitted: $isEmitted")
+            }
+            .addOnFailureListener { e ->
+                Log.e("WeatherLocationManager", "Failed to receive GPS location: ${e.message}", e)
+                _location.tryEmit(LocationStatus.Failure(e.message.toString()))
+            }
     }
-
     override fun requestLocationSavedFromMap() {
 
     }
