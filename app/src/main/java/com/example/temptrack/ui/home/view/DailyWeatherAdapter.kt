@@ -7,6 +7,8 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.temptrack.data.model.DailyWeather
 import com.example.temptrack.databinding.WeekItemBinding
+import com.example.temptrack.datastore.SettingDataStorePreferences
+import com.example.temptrack.util.getDayFormat
 import com.example.temptrack.util.getImageIcon
 
 class DailyWeatherAdapter(private val clickListener: (DailyWeather) -> Unit) :
@@ -33,6 +35,7 @@ class DailyWeatherAdapter(private val clickListener: (DailyWeather) -> Unit) :
             binding.root.setOnClickListener { clickListener(item) }
             binding.tvMaxTemp.text=item.maxTemperature.toString()
             binding.tvMinTemp.text=item.minTemperature.toString()
+            binding.tvDay.text= item.dayOfWeek
             val icon = getImageIcon(item.weather.firstOrNull()?.icon ?: "")
             binding.weekImage.setImageResource(icon)
             binding.executePendingBindings()

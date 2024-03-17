@@ -27,6 +27,12 @@
         <action
             android:id="@+id/action_homeFragment2_to_favorite"
             app:destination="@id/favorite" />
+        <argument
+            android:name="latitude"
+            app:argType="float" />
+        <argument
+            android:name="longitude"
+            app:argType="float" />
     </fragment>
 
 </navigation>

@@ -10,6 +10,8 @@ import com.example.temptrack.data.model.DailyWeather
 import com.example.temptrack.data.model.HourlyItem
 import com.example.temptrack.data.model.HourlyWeather
 import com.example.temptrack.data.model.WeatherItem
+import com.example.temptrack.datastore.SettingDataStorePreferences
+import com.example.temptrack.ui.home.view.HomeFragment
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Calendar

@@ -22,18 +22,12 @@
         android:supportsRtl="true"
         android:theme="@style/Base.Theme.TempTrack"
         tools:targetApi="31">
-        <activity
-            android:name=".splash.Splash"
-            android:exported="true" >
-        </activity>
-
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCmFmdEX0d_-_ecEhZX_GJARLyl9INYFIs" />
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
-
         <service
             android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
             android:enabled="false"

@@ -5,6 +5,7 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Geocoder
 import android.location.LocationManager
 import android.os.Bundle
 import android.provider.Settings
@@ -22,6 +23,7 @@ import com.example.temptrack.checknetowrk.NetworkStatus
 import com.example.temptrack.data.database.DatabaseClient
 import com.example.temptrack.data.database.FavoriteLocalDataSourceImo
 import com.example.temptrack.data.model.WeatherForecastResponse
+import com.example.temptrack.data.model.getCountryName
 import com.example.temptrack.data.network.RetrofitClient
 import com.example.temptrack.data.network.datasource.WeatherRemoteDataSourceImpl
 import com.example.temptrack.data.repositry.WeatherRepositoryImpl
@@ -30,7 +32,6 @@ import com.example.temptrack.datastore.ENUM_LANGUAGE
 import com.example.temptrack.datastore.ENUM_LOCATION
 import com.example.temptrack.datastore.ENUM_TEMP_PREF
 import com.example.temptrack.datastore.SettingDataStorePreferences
-import com.example.temptrack.location.obtainLocation
 import com.example.temptrack.ui.home.viewmodel.HomeViewModel
 import com.example.temptrack.ui.home.viewmodel.HomeViewModelFactory
 import com.example.temptrack.ui.map.MapsActivity
@@ -39,16 +40,17 @@ import com.example.temptrack.util.convertToDailyWeather
 import com.example.temptrack.util.convertToHourlyWeather
 import com.example.temptrack.util.getImageIcon
 import com.google.gson.Gson
-import com.google.gson.JsonSyntaxException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.FileNotFoundException
 import java.io.IOException
+import java.util.Locale
 
+@Suppress("UNREACHABLE_CODE")
 class HomeFragment : Fragment() {
 
     private lateinit var viewModel: HomeViewModel
@@ -61,7 +63,7 @@ class HomeFragment : Fragment() {
     private var _latitude: Double = 0.0
     private var _longitude: Double = 0.0
     private lateinit var networkConnectivity: NetworkConnectivity
-
+    private  var country:String?=" "
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -92,6 +94,14 @@ class HomeFragment : Fragment() {
         settingSharedPreferences = SettingDataStorePreferences.getInstance(requireContext())
 
         viewModel = ViewModelProvider(this, factory).get(HomeViewModel::class.java)
+        binding.locationImage.setOnClickListener {
+            val intent = Intent(requireContext(), MapsActivity::class.java)
+            val bundle = Bundle().apply {
+                putString("fragment_name", "HomeFragment")
+            }
+            intent.putExtras(bundle)
+            startActivity(intent)
+        }
 
         viewLifecycleOwner.lifecycleScope.launch {
             try {
@@ -116,34 +126,40 @@ class HomeFragment : Fragment() {
 
                 when (locationPref) {
                     ENUM_LOCATION.MAP -> {
+                        binding.locationImage.visibility=View.VISIBLE
                         Log.d("HomeFragment", "onViewCreated: MAP")
-                        val intent = Intent(requireContext(), MapsActivity::class.java)
-                        val bundle = Bundle().apply {
-                            putString("fragment_name", "HomeFragment")
-                        }
-                        intent.putExtras(bundle)
-                        startActivity(intent)
+                         _latitude= settingSharedPreferences.getLatitude().firstOrNull()!!
+                        _longitude= settingSharedPreferences.getLongitude().firstOrNull()!!
+                        val geocoder=Geocoder(requireContext(),Locale.getDefault())
+                        country= geocoder.getFromLocation(_latitude,_longitude,1)?.get(0)?.adminArea
+                        Log.i("HomeFragment", "onViewCreated MAP: $_latitude, $_longitude")
+
                     }
                     ENUM_LOCATION.GPS -> {
+                        binding.locationImage.visibility=View.GONE
+
                         viewModel.latitude.collect { latitude ->
                             _latitude = latitude
-                            Log.d("HomeFragment", "Latitude: $_latitude")
 
-                            viewModel.longitude.collect { longitude ->
-                                _longitude = longitude
-                                Log.d("HomeFragment", "Longitude: $_longitude")
+                        viewModel.longitude.collect { longitude ->
+                            _longitude = longitude
+                            viewModel.fetchWeatherForecast(_latitude, _longitude, unit, language)
+                            Log.i("TAG", "onViewCreated: $_longitude ,$_latitude")
 
-                               viewModel.fetchWeatherForecast(_latitude, _longitude, unit, language)
-                            }
                         }
                     }
-                    else -> {
+                        val geocoder=Geocoder(requireContext(),Locale.getDefault())
+                        country= geocoder.getFromLocation(30.2794938,32.2792794,1)?.get(0)?.adminArea
+                        val countryName: String= getCountryName(requireContext(),30.2794938,32.2792794)
                     }
+
                 }
             } catch (e: Exception) {
                 Log.e("HomeFragment", "Error fetching preferences: ${e.message}")
             }
         }
+        viewModel.fetchWeatherForecast(_latitude, _longitude, unit, language)
+
         fetchDataFromFile()
         viewLifecycleOwner.lifecycleScope.launch {
             networkConnectivity.connectivitySharedFlow.collect { networkStatus ->
@@ -159,7 +175,6 @@ class HomeFragment : Fragment() {
         if (checkPermission()) {
             if (isLocationEnabled()) {
                 viewModel.requestGPSLocation()
-                obtainLocation(requireContext(), settingSharedPreferences)
 
             } else {
                 showEnableLocationDialog()
@@ -177,7 +192,9 @@ class HomeFragment : Fragment() {
                         saveWeatherDataToFile(weatherData.data)
                         visitableTrue()
                         val response=weatherData.data
-                        displayData(response)                    }
+                        displayData(response)
+
+                    }
 
                     is ResultCallBack.Error -> {
                         visitableFalse()
@@ -337,7 +354,6 @@ class HomeFragment : Fragment() {
 
     fun displayData(response: WeatherForecastResponse){
         Log.d("HomeFragment", "Displaying weather data: $response")
-
         visitableTrue()
         val dailyItem = response.daily
         val data = convertToDailyWeather(dailyItem)
@@ -348,7 +364,7 @@ class HomeFragment : Fragment() {
         dailyItem.get(0).weather.get(0).icon
         val icon = getImageIcon(dailyItem.get(0).weather.get(0).icon)
         binding.iconforNow.setImageResource(icon)
-        binding.tvCity.text=response.timezone
+        binding.tvCity.text=country
         binding.tvTemp.text = response.current.temp.toString()
         binding.tvDescription.text = dailyItem.get(0).weather.get(0).description
         binding.pressureMeasure.text= buildString {

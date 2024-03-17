@@ -19,7 +19,6 @@ import kotlinx.coroutines.launch
 class HomeViewModel(application: Application, private val repository: WeatherRepository) : ViewModel() {
     private val _weatherForecast = MutableStateFlow<ResultCallBack<WeatherForecastResponse>>(ResultCallBack.Loading)
     val weatherForecast: StateFlow<ResultCallBack<WeatherForecastResponse>> = _weatherForecast
-
     private val locationManager: WeatherLocationManagerInterface = WeatherLocationManager.getInstance(application)
     private val _location = MutableStateFlow<LocationStatus>(LocationStatus.Loading)
     val location: StateFlow<LocationStatus> = _location
@@ -50,7 +49,7 @@ class HomeViewModel(application: Application, private val repository: WeatherRep
                     is LocationStatus.Success -> {
                         _latitude.value = locationStatus.latLng.latitude
                         _longitude.value = locationStatus.latLng.longitude
-                        Log.d("HomeViewModel", "Received GPS location: ${locationStatus.latLng}")
+
                     }
                     is LocationStatus.Failure -> {
                         Log.e("HomeViewModel", "Failed to receive GPS location: ${locationStatus.throwable}")

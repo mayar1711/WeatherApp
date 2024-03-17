@@ -3,11 +3,13 @@ package com.example.temptrack.datastore
 import android.annotation.SuppressLint
 import android.content.Context
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.*
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.doublePreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 private const val SETTING_SHARED_PREFERENCES = "SETTING_SHARED_PREFERENCES"
@@ -17,6 +19,8 @@ private const val LANGUAGE_PREFERENCES = "LANGUAGE_PREFERENCES"
 private const val NOTIFICATIONS_PREFERENCES = "NOTIFICATIONS_PREFERENCES"
 private const val ALERT_PREFERENCES = "ALERT_PREFERENCES"
 private const val COUNTRY_NAME_PREFERENCES = "COUNTRY_NAME_PREFERENCES"
+private const val LATITUDE_PREFERENCE = "LATITUDE_PREFERENCE"
+private const val LONGITUDE_PREFERENCE = "LONGITUDE_PREFERENCE"
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = SETTING_SHARED_PREFERENCES)
 
@@ -28,6 +32,8 @@ class SettingDataStorePreferences(private val context: Context) {
     private val notificationsPrefKey = stringPreferencesKey(NOTIFICATIONS_PREFERENCES)
     private val alertPrefKey = stringPreferencesKey(ALERT_PREFERENCES)
     private val countryNamePrefKey = stringPreferencesKey(COUNTRY_NAME_PREFERENCES)
+    private val latitudePrefKey = doublePreferencesKey(LATITUDE_PREFERENCE)
+    private val longitudePrefKey = doublePreferencesKey(LONGITUDE_PREFERENCE)
 
     private val _locationPrefFlow = MutableStateFlow(ENUM_LOCATION.GPS)
     private val _tempPrefFlow = MutableStateFlow("")
@@ -63,7 +69,11 @@ class SettingDataStorePreferences(private val context: Context) {
         }
         _tempPrefFlow.value = tempPref.name
     }
-
+    fun getCountryNamePref(): Flow<String> {
+        return context.dataStore.data.map { preferences ->
+            preferences[countryNamePrefKey] ?: "Ismailia Governorate"
+        }
+    }
     suspend fun setNotificationsPref(notificationsPref: ENUM_NOTIFICATIONS) {
         context.dataStore.edit { preferences ->
             preferences[notificationsPrefKey] = notificationsPref.name
@@ -117,6 +127,31 @@ class SettingDataStorePreferences(private val context: Context) {
             ENUM_TEMP_PREF.valueOf(tempPref)
         }
     }
+
+    suspend fun setLatitude(latitude: Double) {
+        context.dataStore.edit { preferences ->
+            preferences[latitudePrefKey] = latitude
+        }
+    }
+
+    suspend fun setLongitude(longitude: Double) {
+        context.dataStore.edit { preferences ->
+            preferences[longitudePrefKey] = longitude
+        }
+    }
+
+    fun getLatitude(): Flow<Double> {
+        return context.dataStore.data.map { preferences ->
+            preferences[latitudePrefKey] ?: 0.0
+        }
+    }
+
+    fun getLongitude(): Flow<Double> {
+        return context.dataStore.data.map { preferences ->
+            preferences[longitudePrefKey] ?: 0.0
+        }
+    }
+
     companion object {
 
         @SuppressLint("StaticFieldLeak")
