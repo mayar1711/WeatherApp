@@ -1,5 +1,8 @@
 package com.example.temptrack.data.model
 
+import android.content.Context
+import android.location.Address
+import android.location.Geocoder
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.Calendar
@@ -16,6 +19,16 @@ data class WeatherForecastResponse(
     val alerts: List<Alert>?
 
 )
+fun getCountryName(context: Context, latitude: Double, longitude: Double): String {
+    val geocoder = Geocoder(context, Locale.getDefault())
+    val addresses: List<Address>? = geocoder.getFromLocation(latitude, longitude, 1)
+    return if (addresses != null && addresses.isNotEmpty()) {
+        addresses[0]?.countryName ?: "Unknown"
+    } else {
+        "Unknown"
+    }
+}
+
 
 data class Current(
     val sunrise: Long,

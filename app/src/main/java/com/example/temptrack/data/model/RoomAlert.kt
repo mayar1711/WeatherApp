@@ -5,7 +5,6 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "AlertTable")
 data class RoomAlert(
-
     val dateFrom:Long,
     val dateTo:Long,
  @PrimaryKey

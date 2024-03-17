@@ -36,7 +36,7 @@
                     android:layout_marginBottom="9dp"
                     android:text="30"
                     android:textColor="@color/white"
-                    android:textSize="16sp"
+                    android:textSize="10sp"
                     app:layout_constraintBottom_toTopOf="@+id/day_icon"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -62,7 +62,7 @@
                     android:layout_marginBottom="8dp"
                     android:text="8:00"
                     android:textColor="@color/white"
-                    android:textSize="16sp"
+                    android:textSize="10sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.0"

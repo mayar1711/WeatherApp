@@ -13,7 +13,6 @@ It is a weather forecast mobile kotlin application
 - SharedPreferences
 - Navigation component
 - Google maps
-- Dependency Injection
 - unit testing and android testing
 - WorkManager for notifications and alerts
 - Room database
@@ -23,3 +22,5 @@ It is a weather forecast mobile kotlin application
 - Lottie animation
 - Material design
 - Service for store locales
+# minSdk = 33
+# targetSdk = 34

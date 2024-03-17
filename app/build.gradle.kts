@@ -4,6 +4,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id ("kotlin-kapt")
+//    id ("androidx.navigation.safeargs")
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 android {
@@ -17,7 +18,7 @@ android {
     properties.load(rootProject.file("local.properties").inputStream())
     defaultConfig {
         applicationId = "com.example.temptrack"
-        minSdk = 33
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -81,6 +82,7 @@ dependencies {
     //Navigation Component
     implementation ("androidx.navigation:navigation-fragment:2.7.7")
     implementation ("androidx.navigation:navigation-ui:2.7.7")
+
     // circle image
     implementation ("de.hdodenhof:circleimageview:3.1.0")
 
@@ -114,7 +116,6 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences-core:1.0.0")
     implementation ("androidx.datastore:datastore-preferences:1.0.0")
 
-
     //picasso
     implementation ("com.squareup.picasso:picasso:2.8")
 
@@ -144,8 +145,8 @@ dependencies {
     testImplementation("org.robolectric:robolectric:4.8")
 
 // InstantTaskExecutorRule
-    testImplementation("androidx.arch.core:core-testing:2.1.0")
-    androidTestImplementation("androidx.arch.core:core-testing:2.1.0")
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
+    androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
 
 // kotlinx-coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion")
@@ -173,5 +174,7 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:$espressoVersion")
 
     androidTestImplementation ("androidx.arch.core:core-testing:$archTestingVersion")
+
+
 
 }

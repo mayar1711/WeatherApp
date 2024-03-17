@@ -10,9 +10,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.temptrack.R
 import com.example.temptrack.data.database.DatabaseClient
 import com.example.temptrack.data.database.FavoriteLocalDataSourceImo
 import com.example.temptrack.data.model.TempData
@@ -22,6 +24,7 @@ import com.example.temptrack.data.repositry.WeatherRepositoryImpl
 import com.example.temptrack.databinding.FragmentFavoriteBinding
 import com.example.temptrack.ui.favorite.viewmodel.FavoriteViewModel
 import com.example.temptrack.ui.favorite.viewmodel.FavoriteViewModelFactory
+import com.example.temptrack.ui.home.view.HomeFragment
 import com.example.temptrack.ui.map.MapsActivity
 import com.example.temptrack.util.ResultCallBack
 import kotlinx.coroutines.launch
@@ -39,10 +42,11 @@ class FavoriteFragment : Fragment() {
         binding=FragmentFavoriteBinding.inflate(inflater,container,false)
 
          binding.recyclerFavorite.layoutManager = LinearLayoutManager(requireContext())
-        adapter = FavoriteListAdapter(
-            clickListener = {
-
-                            },
+        adapter = FavoriteListAdapter(requireContext(),
+            clickListener = { tempData ->
+                // Handle click on item
+                navigateToHomeFragment(tempData.lat, tempData.lang)
+            },
             deleteListener = { tempData -> viewModel.deleteFavorite(tempData) }
         )
         binding.recyclerFavorite.adapter=adapter
@@ -62,7 +66,7 @@ class FavoriteFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val repository = WeatherRepositoryImpl.getInstance(WeatherRemoteDataSourceImpl.getInstance(RetrofitClient.weatherApiService),
             FavoriteLocalDataSourceImo.getInstance(DatabaseClient.getInstance(requireContext()).favoriteDao()))
-        val factory=FavoriteViewModelFactory(requireActivity().application,repository)
+        val factory=FavoriteViewModelFactory(repository)
         viewModel= ViewModelProvider(this,factory)[FavoriteViewModel::class.java]
 
         viewModel.getFavoriteList()
@@ -95,8 +99,6 @@ class FavoriteFragment : Fragment() {
         })
         itemTouchHelper.attachToRecyclerView(binding.recyclerFavorite)
 
-
-
     }
     private fun showDeleteConfirmationDialog(tempData: TempData) {
         val position = adapter.currentList.indexOf(tempData)
@@ -111,6 +113,20 @@ class FavoriteFragment : Fragment() {
                 adapter.notifyItemChanged(position)
             }
             .show()
+    }
+    private fun navigateToHomeFragment(latitude: Double, longitude: Double) {
+        val bundle = Bundle().apply {
+            putDouble("latitude", latitude)
+            putDouble("longitude", longitude)
+        }
+
+        val homeFragment = HomeFragment().apply {
+            arguments = bundle
+        }
+
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.favorite, homeFragment)
+            .commit()
     }
 
 }

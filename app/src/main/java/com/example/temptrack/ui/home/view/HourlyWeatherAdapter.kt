@@ -1,12 +1,15 @@
 package com.example.temptrack.ui.home.view
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.temptrack.data.model.HourlyItem
 import com.example.temptrack.data.model.HourlyWeather
 import com.example.temptrack.databinding.DayItemBinding
+import com.example.temptrack.util.convertToHourlyWeather
 import com.example.temptrack.util.getImageIcon
 
 class HourlyWeatherAdapter(private val clickListener: (HourlyWeather) -> Unit) :
@@ -32,7 +35,7 @@ class HourlyWeatherAdapter(private val clickListener: (HourlyWeather) -> Unit) :
             binding.hourlyWeather = item
             binding.root.setOnClickListener { clickListener(item) }
             binding.tvDayTemp.text = item.temperature.toString()
-            binding.dayHour.text=item.hour.toString()
+            binding.dayHour.text="${item.hour}${item.amPm}"
             val icon = getImageIcon(item.weather.firstOrNull()?.icon ?: "")
             binding.dayIcon.setImageResource(icon)
             binding.executePendingBindings()

@@ -11,9 +11,8 @@ import kotlinx.coroutines.launch
 
 class AlertViewModel (private var repository: WeatherRepository): ViewModel() {
     var alertResponse = MutableStateFlow<ResultCallBack<List<RoomAlert>>>(ResultCallBack.Loading)
-
     init {
-
+        getAllAlert()
     }
     fun getAllAlert()=viewModelScope.launch {
         repository.getAllAlerts()

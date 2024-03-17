@@ -1,6 +1,5 @@
 package com.example.temptrack.ui.favorite.viewmodel
 
-import android.app.Application
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,7 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
-class FavoriteViewModel(application: Application, private val repository: WeatherRepository) : ViewModel() {
+class FavoriteViewModel(private val repository: WeatherRepository) : ViewModel() {
     private val _favoriteList = MutableStateFlow<ResultCallBack<List<TempData>>>(ResultCallBack.Loading)
     val favoriteList = _favoriteList.asStateFlow()
 
@@ -24,7 +23,6 @@ class FavoriteViewModel(application: Application, private val repository: Weathe
             .collect { list ->
 
                 _favoriteList.value = ResultCallBack.Success(list)
-                Log.i("TAG", "getFavoriteList: $list")
             }
     }
 

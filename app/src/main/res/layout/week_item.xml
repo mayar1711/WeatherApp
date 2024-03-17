@@ -9,32 +9,39 @@
             type="com.example.temptrack.data.model.DailyWeather" />
     </data>
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@color/blue_400">
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/margin_small"
-            android:backgroundTint="@color/blue_400"
-            app:cardCornerRadius="16dp">
+            android:layout_height="70dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="10dp"
+            android:elevation="20dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="20dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
+                android:layout_width="384dp"
+                android:background="@color/blue_400"
                 android:layout_height="match_parent">
 
                 <TextView
                     android:id="@+id/tv_day"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="20dp"
                     android:layout_marginEnd="13dp"
-                    android:text="@{dailyWeather.date.toString()}"
+                    android:layout_marginBottom="29dp"
+                    android:fontFamily="@font/autour_one"
+                    android:hint="@string/sunny"
+                    android:text="Day"
                     android:textColor="@color/white"
                     android:textSize="16sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/week_image"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -44,61 +51,61 @@
                     android:layout_width="35dp"
                     android:layout_height="38dp"
                     android:layout_marginStart="20dp"
-                    android:layout_marginTop="4dp"
+                    android:layout_marginTop="16dp"
                     app:layout_constraintStart_toEndOf="@+id/tv_day"
                     app:layout_constraintTop_toTopOf="parent"
                     app:srcCompat="@drawable/cloud" />
 
                 <TextView
                     android:id="@+id/tv_min_temp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginEnd="30dp"
+                    android:layout_width="29dp"
+                    android:layout_height="14dp"
+                    android:layout_marginStart="7dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginEnd="50dp"
+                    android:fontFamily="@font/autour_one"
                     android:text="30"
-                    android:textColor="@color/white"
-                    android:textSize="16sp"
+                    android:textColor="@color/black"
+                    android:textSize="10sp"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/textView3"
+                    app:layout_constraintStart_toEndOf="@+id/textView9"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/tv_max_temp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginStart="120dp"
+                    android:layout_marginTop="20dp"
+                    android:fontFamily="@font/autour_one"
                     android:text="20"
-                    android:textColor="@color/white"
-                    android:textSize="16sp"
-                    app:layout_constraintStart_toEndOf="@+id/textView2"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/textView2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginTop="10dp"
-                    android:text="Min"
-                    android:textColor="@color/white"
-                    android:textSize="16sp"
+                    android:textColor="@color/black"
+                    android:textSize="10sp"
                     app:layout_constraintStart_toEndOf="@+id/week_image"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
-                    android:id="@+id/textView3"
+                    android:id="@+id/txt_desc_day"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="15dp"
-                    android:layout_marginTop="10dp"
-                    android:text="Max"
-                    android:textColor="@color/white"
-                    android:textSize="16sp"
+                    android:layout_marginTop="20dp"
+                    android:fontFamily="@font/autour_one"
+                    android:text="@{dailyWeather.weatherDescription}"
+                    android:textSize="10sp"
+                    app:layout_constraintStart_toEndOf="@+id/week_image"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/textView9"
+                    android:layout_width="13dp"
+                    android:layout_height="16dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="16dp"
+                    android:text="/"
                     app:layout_constraintStart_toEndOf="@+id/tv_max_temp"
                     app:layout_constraintTop_toTopOf="parent" />
+
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
-    </FrameLayout>
 </layout>

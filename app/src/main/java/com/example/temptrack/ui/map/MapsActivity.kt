@@ -3,6 +3,7 @@ package com.example.temptrack.ui.map
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Application
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -10,15 +11,18 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.example.temptrack.MainActivity
 import com.example.temptrack.R
 import com.example.temptrack.data.database.DatabaseClient
 import com.example.temptrack.data.database.FavoriteLocalDataSourceImo
+import com.example.temptrack.data.model.Current
 import com.example.temptrack.data.model.TempData
 import com.example.temptrack.data.network.ApiWeatherData
 import com.example.temptrack.data.network.RetrofitClient
 import com.example.temptrack.data.network.datasource.WeatherRemoteDataSourceImpl
 import com.example.temptrack.data.repositry.WeatherRepositoryImpl
 import com.example.temptrack.databinding.ActivityMapsBinding
+import com.example.temptrack.datastore.SettingDataStorePreferences
 import com.example.temptrack.location.LocationStatus
 import com.example.temptrack.location.WeatherLocationManager
 import com.example.temptrack.util.getAddress
@@ -64,7 +68,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, CoroutineScope by 
         binding.add.setOnClickListener {
             if (fragmentName == "HomeFragment") {
 
+                val currentLatitude = latitude
+                val currentLongitude = longitude
+                saveLocationToDataStore(currentLatitude, currentLongitude)
                 Log.i("MapsActivity", "Launched from HomeFragment")
+                Log.i("MapsActivity", "onCreate: $currentLatitude , $currentLongitude")
+                startActivity(Intent(this, MainActivity::class.java))
             } else if (fragmentName == "FavoriteFragment") {
                 Log.i("MapsActivity", "Launched from FavoriteFragment")
                 viewModel.fetchWeatherForecast(latitude = latitude, longitude = longitude, language = "en", unit = "metric")
@@ -104,12 +113,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, CoroutineScope by 
       }
     }
 
+    private fun saveLocationToDataStore(latitude: Double, longitude: Double) {
+        val settingPreferences = SettingDataStorePreferences.getInstance(applicationContext)
+       launch {
+            settingPreferences.setLatitude(latitude)
+            settingPreferences.setLongitude(longitude)
+        }
+    }
+
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
         if (isPermissionGranted()) {
             enableMyLocation()
-            viewModel.requestLocationByGPS()
-            moveCameraToMyLocation()
         } else {
             ActivityCompat.requestPermissions(
                 this,
@@ -120,86 +135,40 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, CoroutineScope by 
                 LOCATION_PERMISSION_REQUEST_CODE
             )
         }
-        setMapLongClick(googleMap)
-        setPoiClick(googleMap)
-        setMapCameraChanged(googleMap)
+        setMapClick(googleMap)
     }
-    private fun moveCameraToMyLocation() {
-        launch {
-            viewModel.location.collect { locationStatus ->
-                if (locationStatus is LocationStatus.Success) {
-                    isLocationReceived=true
-                    val currentLatLng = LatLng(locationStatus.latLng.latitude, locationStatus.latLng.longitude)
-                   latitude=currentLatLng.latitude
-                    longitude=currentLatLng.longitude
-                    Log.i("MapsActivity", "Current Location: $currentLatLng")
-                    map.moveCamera(
-                        CameraUpdateFactory.newLatLngZoom(
-                            currentLatLng, 15.0f
-                        )
-                    )
-                }
-            }
+
+    private fun setMapClick(map: GoogleMap) {
+        map.setOnMapClickListener { latLng ->
+            moveCameraToLocation(latLng)
         }
     }
 
+    private fun moveCameraToLocation(latLng: LatLng) {
+        marker?.remove()
+        val snippet = String.format(
+            Locale.getDefault(), "Lat: %1$.5f, Long: %2$.5f", latLng.latitude, latLng.longitude
+        )
+        val markerOptions = MarkerOptions().position(latLng).snippet(snippet)
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15.0f))
+        _latLng = latLng
+        latitude = latLng.latitude
+        longitude = latLng.longitude
+        marker = map.addMarker(markerOptions)
+    }
+
     private fun isPermissionGranted(): Boolean {
-        return !(ActivityCompat.checkSelfPermission(
+        return (ActivityCompat.checkSelfPermission(
             this, Manifest.permission.ACCESS_FINE_LOCATION
-        ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+        ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
             this, Manifest.permission.ACCESS_COARSE_LOCATION
-        ) != PackageManager.PERMISSION_GRANTED)
+        ) == PackageManager.PERMISSION_GRANTED)
     }
 
     @SuppressLint("MissingPermission")
     private fun enableMyLocation() {
-        if (isPermissionGranted()) {
-            map.isMyLocationEnabled = true
-        }
+        map.isMyLocationEnabled = true
     }
-
-
-    private fun setMapLongClick(map: GoogleMap) {
-        map.setOnMapClickListener { latLng ->
-            marker?.remove()
-            val snippet = String.format(
-                Locale.getDefault(), "Lat: %1$.5f, Long: %2$.5f", latLng.latitude, latLng.longitude
-            )
-            val markerOptions = MarkerOptions().position(latLng).snippet(snippet)
-            map.moveCamera(
-                CameraUpdateFactory.newLatLng(
-                    latLng
-                )
-            )
-            _latLng = latLng
-            marker = map.addMarker(markerOptions)
-        }
-    }
-
-    private fun setPoiClick(map: GoogleMap) {
-        map.setOnPoiClickListener { poi ->
-            marker?.remove()
-            marker = map.addMarker(
-                MarkerOptions().position(poi.latLng).title(poi.name)
-            )
-            _latLng = poi.latLng
-            marker?.showInfoWindow()
-        }
-    }
-
-    private fun setMapCameraChanged(googleMap: GoogleMap) {
-        googleMap.setOnCameraMoveListener {
-            googleMap.clear()
-            _latLng = googleMap.cameraPosition.target
-            marker = googleMap.addMarker(MarkerOptions().position(_latLng))
-        }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        cancel()
-    }
-    private val LOCATION_PERMISSION_REQUEST_CODE = 1001
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -210,11 +179,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, CoroutineScope by 
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 enableMyLocation()
-                viewModel.requestLocationByGPS()
-                moveCameraToMyLocation()
             } else {
                 Log.e("MapsActivity", "Location permission denied")
             }
         }
+    }
+
+    companion object {
+        private const val LOCATION_PERMISSION_REQUEST_CODE = 1001
     }
 }
