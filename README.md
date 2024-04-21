@@ -9,11 +9,11 @@ It is a weather forecast mobile kotlin application
 - Android studio using kotlin
 - MVVM Architecture pattern
 - Repository and Singleton Design Patterns
-- ViewBinding
-- SharedPreferences
+- DataBinding
+- Preferences DataStore
 - Navigation component
 - Google maps
-- unit testing and android testing
+- unit testing
 - WorkManager for notifications and alerts
 - Room database
 - Retrofit
@@ -21,6 +21,6 @@ It is a weather forecast mobile kotlin application
 - Flow and StateFlow
 - Lottie animation
 - Material design
-- Service for store locales
-# minSdk = 33
-# targetSdk = 34
+ #
+ minSdk = 33
+ targetSdk = 34
