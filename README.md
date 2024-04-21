@@ -6,7 +6,7 @@ It is a weather forecast mobile kotlin application
 - The app can be used in English or Arabic
 
 # Used Technologies:
-- Android studio using kotlin
+- kotlin
 - MVVM Architecture pattern
 - Repository and Singleton Design Patterns
 - DataBinding
@@ -14,13 +14,8 @@ It is a weather forecast mobile kotlin application
 - Navigation component
 - Google maps
 - unit testing
-- WorkManager for notifications and alerts
+- WorkManager
 - Room database
 - Retrofit
 - coroutines
-- Flow and StateFlow
-- Lottie animation
 - Material design
- #
-- minSdk = 33
-- targetSdk = 34
