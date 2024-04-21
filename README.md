@@ -22,5 +22,5 @@ It is a weather forecast mobile kotlin application
 - Lottie animation
 - Material design
  #
- minSdk = 33
- targetSdk = 34
+- minSdk = 33
+- targetSdk = 34
